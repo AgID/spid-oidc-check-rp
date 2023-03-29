@@ -1,0 +1,175 @@
+#OIDCReport .title {
+    margin-bottom: 30px!important;
+}
+
+#OIDCReport .main {
+    background: #fff;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+#OIDCReport button {
+    margin: 5px!important; 
+}
+
+#OIDCReport .test-none {
+    display: block;
+    float: left;
+    width: 50px;
+    line-height: 23px;
+    margin: 1px;
+    border: 1px solid #000;
+    background-color: grey;
+    color: #fff!important;
+    font-size: 13px;
+    text-align: center;
+    padding: 3px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+#OIDCReport .test-warning {
+    display: block;
+    float: left;
+    width: 50px;
+    line-height: 23px;
+    margin: 1px;
+    border: 1px solid #000;
+    background-color: orange;
+    color: #000!important;
+    font-size: 11px;
+    text-align: center;
+    padding: 3px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+#OIDCReport .test-success {
+    display: block;
+    float: left;
+    width: 50px;
+    line-height: 23px;
+    margin: 1px;
+    border: 1px solid #000;
+    background-color: green;
+    color: #fff!important;
+    font-size: 13px;
+    text-align: center;
+    padding: 3px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+#OIDCReport .test-success-self {
+    display: block;
+    float: left;
+    width: 50px;
+    line-height: 23px;
+    margin: 1px;
+    border: 1px solid #000;
+    background-color: #006000;
+    color: #fff!important;
+    font-size: 13px;
+    text-align: center;
+    padding: 3px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+#OIDCReport .test-fail {
+    display: block;
+    float: left;
+    width: 50px;
+    line-height: 23px;
+    margin: 1px;
+    border: 1px solid #000;
+    background-color: red;
+    color: #fff!important;
+    font-size: 13px;
+    text-align: center;
+    padding: 3px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+
+#OIDCReport .detail-table {
+    border:1px solid #999;
+    background: #FFFFFF;
+    width: 100%;
+}
+
+#OIDCReport .detail-table th, .detail-table td {
+    padding: 5px;
+}
+
+
+#OIDCReport .detail-header {
+    background: #DDDDDD;
+}
+
+#OIDCReport .detail-row {
+    border:1px solid #000;
+    cursor: pointer;
+}
+
+#OIDCReport .detail-row:hover {
+    background: #EEEEEE;
+}
+
+#OIDCReport .detail-num {
+    width: 50px;
+    max-width: 50px;
+}
+
+#OIDCReport .detail-description,
+#OIDCReport .detail-result,
+#OIDCReport .detail-notes {
+    width: 25%;
+    max-width: 200px;
+    word-wrap: break-word;
+}
+
+#OIDCReport .test-none-dm {
+    background: grey!important;
+    color: #000000;
+}
+
+#OIDCReport .test-success-dm {
+    background: green!important;
+    color: #FFFFFF;
+    font-weight: bold;
+}
+
+#OIDCReport .test-success-self-dm {
+    background: #006000!important;
+    color: #FFFFFF;
+    font-weight: bold;
+}
+
+#OIDCReport .test-warning-dm {
+    background: orange!important;
+    color: #000000;
+    font-weight: bold;
+}
+
+#OIDCReport .test-fail-dm {
+    background: red!important;
+    color: #FFFFFF;
+    font-weight: bold;
+}
+
+#OIDCReport .tools {
+    padding: 30px 20px;
+    background: #FFFFFF;
+}
+
+#OIDCReport .align-super {
+    vertical-align: super;
+}
+
+@media print {
+    #OIDCReport .tools {
+        display: none!important;
+    }
+}

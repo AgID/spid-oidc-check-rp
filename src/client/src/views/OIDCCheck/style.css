@@ -1,0 +1,41 @@
+#OIDCCheck .title {
+    margin-bottom: 30px!important;
+}
+
+#OIDCCheck .main {
+    background: #fff;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+#OIDCCheck .testcase-diagram {
+    width: 100%;
+}
+
+#OIDCCheck .table-test-num {
+    width: 100px;
+}
+
+#OIDCCheck .switch {
+    float: left;
+    margin-right: 20px;
+    margin-bottom: 20px;
+}
+
+#OIDCCheck .Select {
+    z-index:999;
+    margin-bottom: 20px;
+}
+
+#OIDCCheck .test-description {
+    width:100%;
+}
+
+#OIDCCheck .tools {
+    padding: 30px 20px;
+    background: #FFFFFF;
+}
+
+#OIDCCheck .align-super {
+    vertical-align: super;
+} 

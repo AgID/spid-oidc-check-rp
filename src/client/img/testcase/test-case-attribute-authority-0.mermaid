@@ -1,0 +1,17 @@
+sequenceDiagram
+    participant User
+    participant RP
+    participant OP
+    User->>RP: OP selection
+    RP-->>+User: 
+    User-->>-OP: rich authentication request (+ required AA) 
+    OP->>User: show login form
+    User->>OP: insert credentials
+    OP->>User: show AA list
+    User->>OP: select/deselect AA 
+    OP-->>+User: 
+    User-->>-RP: authentication response
+    RP->>OP: token request
+    OP->>RP: token response (+ grant tokens)
+    RP->>OP: userinfo request
+    OP->>RP: userinfo response

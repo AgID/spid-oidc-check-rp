@@ -1,0 +1,33 @@
+{
+  "name": "spid-oidc-check-rp",
+  "version": "1.0.0",
+  "description": "SPID OIDC Conformance Test Tool for RP",
+  "main": "spid-oidc-check-rp",
+  "author": "Michele D'Amico (damikael) - AgID",
+  "license": "ISC",
+  "repository": "https://github.com/AgID/spid-oidc-check-rp",
+  "dependencies": {
+    "@peculiar/x509": "^1.8.1",
+    "axios": "^0.27.2",
+    "base64url": "^3.0.1",
+    "better-sqlite3": "^5.4.0",
+    "express": "^4.15.2",
+    "express-session": "^1.15.5",
+    "flatted": "^3.2.6",
+    "fs-extra": "^8.1.0",
+    "helmet": "^3.10.0",
+    "html-entities": "^1.2.1",
+    "jwt-decode": "^3.1.2",
+    "moment": "^2.29.4",
+    "node-jose": "^2.1.1",
+    "oidc-token-hash": "^5.0.1",
+    "openid-client": "^5.1.7",
+    "pkce-challenge": "^3.0.0",
+    "qs": "^6.11.0",
+    "remove": "^0.1.5",
+    "sha256": "^0.2.0",
+    "uuidjs": "^4.0.3",
+    "validator": "^13.7.0"
+  },
+  "devDependencies": {}
+}

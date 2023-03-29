@@ -1,0 +1,6 @@
+{
+  "name": "OIDCLog",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./OIDCLog.js"
+}

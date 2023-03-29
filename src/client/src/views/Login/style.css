@@ -1,0 +1,11 @@
+.warn {
+	border-color: red!important;
+}
+
+.bg-logo {
+    background: #330063!important;
+}
+
+.input-group-text {
+    height: 100%;
+}

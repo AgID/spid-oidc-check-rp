@@ -1,0 +1,28 @@
+#OIDCLog .title {
+    margin-bottom: 30px!important;
+}
+
+#OIDCLog .main {
+    background: #fff;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+#OIDCLog button {
+    margin: 5px!important; 
+}
+
+#OIDCLog .tools {
+    padding: 30px 20px;
+    background: #FFFFFF;
+}
+
+#OIDCLog .align-super {
+    vertical-align: super;
+}
+
+@media print {
+    #OIDCLog .tools {
+        display: none!important;
+    }
+}

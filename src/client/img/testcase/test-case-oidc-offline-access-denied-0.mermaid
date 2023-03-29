@@ -1,0 +1,15 @@
+sequenceDiagram
+    participant User
+    participant RP
+    participant OP
+    User->>RP: OP selection
+    RP-->>+User: 
+    User-->>-OP: authentication request (scope='openid')
+    OP-->>User: 
+    User-->>OP: authentication challenge 
+    OP-->>+User: 
+    User-->>-RP: authentication response
+    RP->>OP: token request
+    OP->>RP: token response
+    RP->>OP: refresh token request
+    OP->>RP: refresh token error (error='invalid_grant')

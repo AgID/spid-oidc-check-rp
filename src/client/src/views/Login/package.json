@@ -1,0 +1,5 @@
+{
+  "name": "Login",
+  "version": "1.0.0",
+  "main": "./Login.js"
+}

@@ -1,0 +1,15 @@
+sequenceDiagram
+    participant User
+    participant RP
+    participant OP
+    User->>RP: OP selection
+    RP-->>+User: 
+    User-->>-OP: authentication request<br/>scope='openid offline_access'<br/>acr_values='https://www.spid.gov.it/SpidL1 https://www.spid.gov.it/SpidL3')
+    OP-->>User: 
+    User-->>OP: authentication challenge 
+    OP-->>+User: 
+    User-->>-RP: authentication response
+    RP->>OP: token request
+    OP->>RP: token response
+    RP->>OP: refresh token request
+    OP->>RP: refresh token error (error='invalid_request')
