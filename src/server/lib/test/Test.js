@@ -6,6 +6,10 @@ class Test {
         this._headers = [];
     }
 
+    setDatabase(database) {
+        this.database = database;
+    }
+
     exec() {
         if(!this.hook) throw new Error("Test must have a hook");
         if(!this.num) throw new Error("Test must have a num");

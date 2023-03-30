@@ -88,16 +88,19 @@ module.exports = function(app, checkAuthorisation, database) {
         let testsuite = request.testsuite;
         let testcase = request.testcase;
         let authrequest = request.authrequest;
+        let authresponse = {};
         let metadata = database.getMetadata(user, store_type);
         let report = [];
 
         { // token-request
             let hook = "token-request";
 
+            database.setStep(request.req_id, 'tokenrequest', tokenrequest);
             database.setLastLog(user, external_code, store_type, testsuite, {
                 details: {
                     metadata: metadata,
                     authrequest: authrequest, 
+                    authresponse: authresponse,
                     tokenrequest: tokenrequest,
                     report: report,
                     report_datetime: moment().format("YYYY-MM-DD HH:mm:ss")
@@ -115,7 +118,9 @@ module.exports = function(app, checkAuthorisation, database) {
             if(tests!=null) {
                 for(let t in tests) {
                     let TestTokenRequestClass = require("../../test/" + tests[t]);
-                    test = new TestTokenRequestClass(metadata, authrequest, authresponse={}, tokenrequest);
+                    test = new TestTokenRequestClass(metadata, authrequest, authresponse, tokenrequest);
+                    test.setDatabase(database);
+
                     if(test.hook==hook) {
                         result = await test.getResult();
 
@@ -145,6 +150,8 @@ module.exports = function(app, checkAuthorisation, database) {
                 for(let t in tests) {
                     let TestTokenResponseClass = require("../../test/" + tests[t]);
                     test = new TestTokenResponseClass(metadata, authrequest, authresponse, tokenrequest, tokenresponse);
+                    test.setDatabase(database);
+
                     if(test.hook==hook) {
                         result = await test.getResult();
 
@@ -160,6 +167,7 @@ module.exports = function(app, checkAuthorisation, database) {
             }
         }
 
+        database.setStep(request.req_id, 'tokenresponse', tokenresponse);        
         database.setLastLog(user, external_code, store_type, testsuite, {
             details: {
                 metadata: metadata,
@@ -172,10 +180,140 @@ module.exports = function(app, checkAuthorisation, database) {
             }
         });
 
-        // make authresponse
+        // make tokenresponse
         console.log("Token Response", tokenresponse);
         res.status(200).json(tokenresponse);
     });
+
+    // OIDC Userinfo Endpoint
+    app.all("//userinfo", async function(req, res) { 
+
+        // Authorization: Bearer access_token
+        let access_token = req.get('Authorization').substring(7);
+        
+        let userinforequest = {
+            method: req.method,
+            access_token: access_token
+        }
+
+        console.log("Userinfo Request", userinforequest);     
+
+        if(!access_token) res.status(400).json({
+            error: 'invalid_grant',
+            description: 'access_token not valid'
+        });
+ 
+        let external_code = null;
+        let request = database.getRequestByAccessToken(access_token);
+        let user = request.user;
+        let store_type = request.store_type;
+        let testsuite = request.testsuite;
+        let testcase = request.testcase;
+
+        let metadata = database.getMetadata(user, store_type);
+        let authrequest = database.getStepValue(request.req_id, 'authrequest');
+        let authresponse = database.getStepValue(request.req_id, 'authresponse');
+        let tokenrequest = database.getStepValue(request.req_id, 'tokenrequest');
+        let tokenresponse = database.getStepValue(request.req_id, 'tokenresponse');
+        
+        let report = [];
+
+        { // userinfo-request
+            let hook = "userinfo-request";
+
+            database.setLastLog(user, external_code, store_type, testsuite, {
+                details: {
+                    metadata: metadata,
+                    authrequest: authrequest,
+                    authresponse: authresponse, 
+                    tokenrequest: tokenrequest,
+                    tokenresponse: tokenresponse,
+                    userinforequest: userinforequest,
+                    report: report,
+                    report_datetime: moment().format("YYYY-MM-DD HH:mm:ss")
+                    },
+            });
+
+            let tests = config_test[testsuite].cases[testcase].hook[hook]; 
+            let testcase_name = config_test[testsuite].cases[testcase].name;
+            let testcase_description = config_test[testsuite].cases[testcase].description;
+            let testcase_referements = config_test[testsuite].cases[testcase].ref;
+            console.log("Test case name: " + testcase_name);
+            console.log("Referements: " + testcase_referements);
+            console.log("Test list to be executed: ", tests);
+
+            if(tests!=null) {
+                for(let t in tests) {
+                    let TestUserinfoRequestClass = require("../../test/" + tests[t]);
+                    test = new TestUserinfoRequestClass(metadata, authrequest, authresponse, tokenrequest, tokenresponse, userinforequest);
+                    test.setDatabase(database);
+                    if(test.hook==hook) {
+                        result = await test.getResult();
+
+                        // save single test to store
+                        database.setTest(user, external_code, store_type, testsuite, testcase, hook, result);
+                        console.log(result);
+                        report.push(result);
+                    }
+                }
+            }
+        }
+
+        let userinforesponse = {};
+
+        { // userinfo-response
+            let hook = "userinfo-response";
+
+            let tests = config_test[testsuite].cases[testcase].hook[hook]; 
+            let testcase_name = config_test[testsuite].cases[testcase].name;
+            let testcase_description = config_test[testsuite].cases[testcase].description;
+            let testcase_referements = config_test[testsuite].cases[testcase].ref;
+            console.log("Test case name: " + testcase_name);
+            console.log("Referements: " + testcase_referements);
+            console.log("Test list to be executed: ", tests);
+
+            if(tests!=null) {
+                for(let t in tests) {
+                    let TestUserinfoResponseClass = require("../../test/" + tests[t]);
+                    test = new TestUserinfoResponseClass(metadata, authrequest, authresponse, tokenrequest, tokenresponse, userinforequest, userinforesponse={});
+                    test.setDatabase(database);
+                    if(test.hook==hook) {
+                        result = await test.getResult();
+
+                        // save single test to store
+                        database.setTest(user, external_code, store_type, testsuite, testcase, hook, result);
+                        console.log(result);
+                        report.push(result);
+                    }
+
+                    userinforesponse = await test.getUserinfoResponse();
+                    res.set(test.getHeaders());
+                }
+            }
+        }
+
+        database.setLastLog(user, external_code, store_type, testsuite, {
+            details: {
+                metadata: metadata,
+                authrequest: authrequest,
+                authresponse: authresponse, 
+                tokenrequest: tokenrequest,
+                tokenresponse: tokenresponse,
+                userinforequest: userinforequest,
+                userinforesponse: userinforesponse,
+                report: report,
+                report_datetime: moment().format("YYYY-MM-DD HH:mm:ss")
+            }
+        });
+
+        // make userinforesponse
+        console.log("Userinfo Response", userinforesponse);
+        res.status(200).json(userinforesponse);
+    });
+
+
+
+
 
 
 

@@ -63,13 +63,22 @@ class Database {
                     store_type      STRING, \
                     testsuite       STRING, \
                     testcase        STRING, \
+                    client_id       STRING, \
+                    redirect_uri    STRING, \
                     code            STRING UNIQUE, \
-                    auth_request    TEXT, \
                     auth_timestamp  DATETIME DEFAULT (datetime('now')) NOT NULL, \
+                    authrequest     TEXT, \
+                    authresponse    TEXT, \
+                    tokenrequest    TEXT, \
+                    tokenresponse   TEXT, \
+                    userinforequest TEXR, \
+                    userinforesponse TEXT, \
                     id_token        STRING UNIQUE, \
                     access_token    STRING UNIQUE, \
                     token_timestamp DATETIME, \
-                    userinfo        STRING \
+                    userinfo        STRING, \
+                    state           STRING, \
+                    nonce           STRING \
                 ); \
             ");
 
@@ -299,7 +308,7 @@ class Database {
         this.saveStore(user, organization, client_id, external_code, store_type, store);
     }
 
-    setLastLog(user, external_code, store_type, testsuite, log) {
+    setLastLog(user, external_code, store_type, testsuite, log, append=false) {
         if(!this.checkdb()) return;
 
         let store = this.getStore(user, store_type);
@@ -312,6 +321,13 @@ class Database {
 
         let organization = null; //store.metadata.configuration.op_name;
         let client_id = store.metadata.configuration.client_id;
+
+        if(append) {
+            log = {
+                ...store.test[testsuite]['lastlog'],
+                ...log        
+            }
+        }
 
         store.test[testsuite]['lastlog'] = log;
         this.saveStore(user, organization, client_id, external_code, store_type, store);
@@ -353,48 +369,29 @@ class Database {
     /* --------- OIDC Authorization Code Flow Helper ------------------- */
 
     saveRequest(user, store_type, testsuite, testcase, authrequest) {
-        let code = UUID.generate();
+        let code = authrequest.code || UUID.generate();
         let stmt = this.db.prepare(" \
-            INSERT INTO token(user, store_type, testsuite, testcase, code, auth_request) \
-            VALUES(:user, :store_type, :testsuite, :testcase, :code, :auth_request); \
+            INSERT INTO token(user, store_type, testsuite, testcase, \
+                client_id, redirect_uri, code, authrequest) \
+            VALUES(:user, :store_type, :testsuite, :testcase, \
+                :client_id, :redirect_uri, :code, :authrequest); \
         ");
         let info = stmt.run({
             'user': user,
             'store_type': store_type,
             'testsuite': testsuite,
             'testcase': testcase,
+            'client_id': authrequest.client_id,
+            'redirect_uri': authrequest.redirect_uri,
             'code': code,
-            'auth_request': JSON.stringify(authrequest)
+            'state': authrequest.state,
+            'nonce': authrequest.nonce,
+            'authrequest': JSON.stringify(authrequest)
         });
         //let req_id = info.lastInsertRowid;
+
         return code;
     }
-
-    getRequestByCode(code) {
-        let stmt = this.db.prepare(" \
-            SELECT * FROM token \
-            WHERE code = :code;"
-        );
-
-        let result = stmt.all({
-            'code': code
-        });
-
-        let request = null;
-        if(result.length==1) {
-            request = {
-                user: result[0]['user'],
-                store_type: result[0]['store_type'],
-                testsuite: result[0]['testsuite'],
-                testcase: result[0]['testcase'],
-                authrequest: JSON.parse(result[0]['auth_request'])
-            };
-        }
-
-        return request;
-    }
-
-    /*
 
     updateRequest(client_id, redirect_uri, state='', nonce='') {
         let req_id = null;
@@ -427,9 +424,38 @@ class Database {
         return req_id;
     }
 
+    getRequestByCode(code) {
+        let stmt = this.db.prepare(" \
+            SELECT * FROM token \
+            WHERE code = :code;"
+        );
+
+        let result = stmt.all({
+            'code': code
+        });
+
+        let request = null;
+        if(result.length==1) {
+            request = {
+                req_id: result[0]['req_id'], 
+                user: result[0]['user'],
+                store_type: result[0]['store_type'],
+                testsuite: result[0]['testsuite'],
+                testcase: result[0]['testcase'],
+                client_id: result[0]['client_id'],
+                redirect_uri: result[0]['redirect_uri'],
+                state: result[0]['state'],
+                nonce: result[0]['nonce'],
+                authrequest: JSON.parse(result[0]['authrequest'])
+            };
+        }
+
+        return request;
+    }
+
     getRequestByIdToken(id_token) {
         let stmt = this.db.prepare(" \
-            SELECT req_id, client_id, redirect_uri, state, nonce FROM token \
+            SELECT * FROM token \
             WHERE id_token = :id_token;"
         );
 
@@ -437,19 +463,59 @@ class Database {
             'id_token': id_token
         });
 
-        return {
-            'req_id':       result[0]['req_id'],
-            'client_id':    result[0]['client_id'],
-            'redirect_uri': result[0]['redirect_uri'],
-            'state':        result[0]['state'],
-            'nonce':        result[0]['nonce']
-        };
+        let request = null;
+        if(result.length==1) {
+            request = {
+                req_id: result[0]['req_id'], 
+                user: result[0]['user'],
+                store_type: result[0]['store_type'],
+                testsuite: result[0]['testsuite'],
+                testcase: result[0]['testcase'],
+                client_id: result[0]['client_id'],
+                redirect_uri: result[0]['redirect_uri'],
+                state: result[0]['state'],
+                nonce: result[0]['nonce'],
+                authrequest: JSON.parse(result[0]['authrequest'])
+            };
+        }
+
+        return request;
+    }
+
+    getRequestByAccessToken(access_token) {
+        let stmt = this.db.prepare(" \
+            SELECT * FROM token \
+            WHERE access_token = :access_token;"
+        );
+
+        let result = stmt.all({
+            'access_token': access_token
+        });
+ 
+        let request = null;
+        if(result.length==1) {
+            request = {
+                req_id: result[0]['req_id'], 
+                user: result[0]['user'],
+                store_type: result[0]['store_type'],
+                testsuite: result[0]['testsuite'],
+                testcase: result[0]['testcase'],
+                client_id: result[0]['client_id'],
+                redirect_uri: result[0]['redirect_uri'],
+                state: result[0]['state'],
+                nonce: result[0]['nonce'],
+                authrequest: JSON.parse(result[0]['authrequest'])
+            };
+        }
+
+        return request;
     }
 
     getRequestByClientID(client_id) {
         let stms = this.db.prepare(" \
             SELECT req_id, client_id, redirect_uri, state, nonce FROM token \
-            WHERE client_id = :client_id;"
+            WHERE client_id = :client_id \
+            ORDER BY auth_timestamp DESC;"
         );
 
         let result = stmt.all({
@@ -580,7 +646,7 @@ class Database {
         ");
         
         let result = stmt.run({
-            'userinfo': userinfo,
+            'userinfo': JSON.stringify(userinfo),
             'req_id':   req_id
         });
     }
@@ -610,8 +676,44 @@ class Database {
         });
     }
 
-    */
 
+    setStep(req_id, step, value) {
+        let steps = [
+            'authrequest', 
+            'authresponse',
+            'tokenrequest',
+            'tokenresponse',
+            'userinforequest',
+            'userinforesponse'
+        ];
+
+        if(steps.includes(step)) {
+            let stmt = this.db.prepare(" \
+                UPDATE token \
+                SET " + step + "=:step \
+                WHERE req_id=:req_id \
+            ");
+            
+            let result = stmt.run({
+                'step': JSON.stringify(value),
+                'req_id': req_id
+            });
+        }
+    }
+
+    getStepValue(req_id, step) {
+        let stmt = this.db.prepare(" \
+            SELECT " + step + " \
+            FROM token \
+            WHERE req_id=:req_id \
+        ");
+        
+        let result = stmt.all({
+            'req_id': req_id
+        });
+
+        return JSON.parse(result[0][step]);
+    }
 }
     
 module.exports = Database; 

@@ -4,6 +4,9 @@ const flatted = require("flatted");
 const child_process = require('child_process');
 const UUID = require("uuidjs");
 const moment = require("moment");
+const jose = require("node-jose");
+const base64url = require("base64url");
+const x509 = require("@peculiar/x509");
 const CryptoJS = require("crypto-js");
 const validator = require("validator");
 //const config_dir = require("../../config/dir.json");
@@ -93,6 +96,55 @@ class Utils {
         }
       
         return dotSplit.reduce((acc, currElem) => acc && validator.isBase64(currElem, { urlSafe: true }), true);
+    }
+
+    static async makeJWS(header_data, payload_data, alg='RS256') {
+        const crt_pem = fs.readFileSync(path.resolve(__dirname, '../../config/spid-oidc-check-rp-sig.crt'));
+        const key_pem = fs.readFileSync(path.resolve(__dirname, '../../config/spid-oidc-check-rp-sig.key'));
+        const x5c = new x509.X509Certificate(crt_pem);
+
+        const keystore = jose.JWK.createKeyStore();
+
+        let key = await keystore.add(key_pem, 'pem');
+        let thumbprint = await key.thumbprint('SHA-256');
+
+        let header = {
+            kid: base64url.encode(thumbprint),
+            x5c: [x5c.toString("base64")],
+            ...header_data
+        }
+
+        let jws = await jose.JWS.createSign({
+            format: 'compact',
+            alg: alg,
+            fields: {...header}
+        }, key).update(JSON.stringify(payload_data)).final();
+
+        return jws;
+    }
+
+    static async makeJWE(header_data, payload_data) {
+        const crt_pem = fs.readFileSync(path.resolve(__dirname, '../../config/spid-oidc-check-rp-enc.crt'));
+        const key_pem = fs.readFileSync(path.resolve(__dirname, '../../config/spid-oidc-check-rp-enc.key'));
+        const x5c = new x509.X509Certificate(crt_pem);
+        
+        const keystore = jose.JWK.createKeyStore();
+        
+        let key = await keystore.add(key_pem, 'pem');
+        let thumbprint = await key.thumbprint('SHA-256');
+
+        let header = {
+            kid: base64url.encode(thumbprint),
+            x5c: [x5c.toString("base64")],
+            ...header_data
+        }
+
+        let jwe = await jose.JWE.createEncrypt({
+            format: 'compact',
+            fields: {...header}
+        }, key).update(payload_data).final();
+
+        return jwe;
     }
 }
 

@@ -18,6 +18,17 @@ class TestUserinfoResponse extends Test {
     exec() {
         super.exec();
     }
+
+    async getUserinfoResponse() {
+        let userinforesponse = null;
+        try {
+            await this.exec();
+            userinforesponse = this.userinforesponse;
+        } catch(error) {
+            console.log(error);
+        }
+        return userinforesponse;
+    }
 }
 
 module.exports = TestUserinfoResponse 

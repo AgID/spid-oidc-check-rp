@@ -1,6 +1,6 @@
 {
   "name": "spid-oidc-check-rp",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "SPID OIDC Conformance Test Tool for RP",
   "main": "spid-oidc-check-rp",
   "author": "Michele D'Amico (damikael) - AgID",
@@ -19,7 +19,7 @@
     "html-entities": "^1.2.1",
     "jwt-decode": "^3.1.2",
     "moment": "^2.29.4",
-    "node-jose": "^2.1.1",
+    "node-jose": "^2.2.0",
     "oidc-token-hash": "^5.0.1",
     "openid-client": "^5.1.7",
     "pkce-challenge": "^3.0.0",
