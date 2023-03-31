@@ -9,8 +9,6 @@ const base64url = require("base64url");
 const x509 = require("@peculiar/x509");
 const CryptoJS = require("crypto-js");
 const validator = require("validator");
-//const config_dir = require("../../config/dir.json");
-//const config_idp = require("../../config/idp.json");
 const fs = require("fs-extra");
 
 
@@ -123,26 +121,30 @@ class Utils {
         return jws;
     }
 
-    static async makeJWE(header_data, payload_data) {
-        const crt_pem = fs.readFileSync(path.resolve(__dirname, '../../config/spid-oidc-check-rp-enc.crt'));
-        const key_pem = fs.readFileSync(path.resolve(__dirname, '../../config/spid-oidc-check-rp-enc.key'));
-        const x5c = new x509.X509Certificate(crt_pem);
-        
+    static async makeJWE(header_data, payload_data, key) {
+
+        let keys;
         const keystore = jose.JWK.createKeyStore();
         
-        let key = await keystore.add(key_pem, 'pem');
-        let thumbprint = await key.thumbprint('SHA-256');
+        if(!key) {
+            const key_pem = fs.readFileSync(path.resolve(__dirname, '../../config/spid-oidc-check-rp-enc.key'));
+            keys = await keystore.add(key_pem, 'pem');                
+        } else {
+            keys = await keystore.add(key);            
+        }
+        
+
+        let thumbprint = await keys.thumbprint('SHA-256');
 
         let header = {
             kid: base64url.encode(thumbprint),
-            x5c: [x5c.toString("base64")],
             ...header_data
         }
 
         let jwe = await jose.JWE.createEncrypt({
             format: 'compact',
             fields: {...header}
-        }, key).update(payload_data).final();
+        }, keys).update(payload_data).final();
 
         return jwe;
     }

@@ -71,7 +71,8 @@ class Test_3_1_0 extends TestTokenResponse {
                 client_id: client_id,
                 iat: iat.unix(),
                 nbf: iat.unix(),
-                exp: iat.clone().add(15, 'm').unix(),
+                exp: iat.clone().add(5, 'm').unix(),
+                nonce: this.authrequest.nonce
             }
         );
 

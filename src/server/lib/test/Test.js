@@ -61,7 +61,7 @@ class Test {
 
         } catch(error) {
             test.result = this.setFailure();
-            test.message = error;
+            test.message = error.message;
             
         } finally {
             test.notes = this.notes;
