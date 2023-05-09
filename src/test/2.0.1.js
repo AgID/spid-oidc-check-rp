@@ -14,7 +14,7 @@ class Test_2_0_1 extends TestAuthRequest {
         if(this.authrequest.request==null
             || this.authrequest.request=='') {
             this.notes = this.authrequest;
-            throw("parameter request is not present");
+            throw new Error("parameter request is not present");
         } else {
             this.notes = this.authrequest.request;
             return true;

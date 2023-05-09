@@ -15,7 +15,7 @@ class Test_2_2_0 extends TestAuthResponse {
         let redirect_uris = this.metadata.configuration.redirect_uris;
         if(!redirect_uris.includes(redirect_uri)) {
             this.notes = redirect_uri + " is not in " + JSON.stringify(redirect_uris);
-            throw("redirect_uri " + redirect_uri + " is not included into metadata redirect_uris");
+            throw new Error("redirect_uri " + redirect_uri + " is not included into metadata redirect_uris");
         } 
  
         this.authresponse.url = redirect_uri 

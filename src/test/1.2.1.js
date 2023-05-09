@@ -1,11 +1,11 @@
 const TestMetadata = require('../server/lib/test/TestMetadata.js');
 const axios = require('../server/node_modules/axios');
 
-class Test_1_1_0 extends TestMetadata {
+class Test_1_2_1 extends TestMetadata {
 
     constructor(metadata) {
         super(metadata);
-        this.num = "1.1.0";
+        this.num = "1.2.1";
         this.description = "The response MUST return HTTP Status Code 200 OK";
         this.validation = "automatic";
     }
@@ -13,14 +13,15 @@ class Test_1_1_0 extends TestMetadata {
     async exec() {
         super.exec();
         
-        if(this.metadata.type!='configuration') {
-            this.notes = "N/A (document is not provided as openid-configuration)";
+        if(this.metadata.type!='federation') {
+            this.notes = "N/A (document is not provided as openid-federation)";
             return true;
         }
 
         let response = await axios.get(this.metadata.url);
+        this.notes = response.status;
+
         if(response.status!=200) {
-            this.notes = response.status;
             throw new Error("The HTTP Status Code is not 200 OK");
         } else {
             return true;
@@ -29,4 +30,4 @@ class Test_1_1_0 extends TestMetadata {
 
 }
 
-module.exports = Test_1_1_0
+module.exports = Test_1_2_1

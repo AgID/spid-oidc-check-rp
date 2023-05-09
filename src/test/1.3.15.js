@@ -15,12 +15,12 @@ class Test_1_3_15 extends TestMetadata {
         if(this.metadata.configuration.grant_types==null
             || this.metadata.configuration.grant_types=='') {
             this.notes = this.metadata.configuration;
-            throw("the claim grant_types is not present");
+            throw new Error("the claim grant_types is not present");
         } 
 
         if(!Array.isArray(this.metadata.configuration.grant_types)) {
             this.notes = this.metadata.configuration.grant_types;
-            throw("the claim grant_types is not an array");
+            throw new Error("the claim grant_types is not an array");
         }
 
         for(let i in this.metadata.configuration.grant_types) {
@@ -28,7 +28,7 @@ class Test_1_3_15 extends TestMetadata {
             let allowed_values = ['authorization_code', 'refresh_token'];
             if(!allowed_values.includes(value)) {
                 this.notes = this.metadata.configuration.grant_types;
-                throw("the value " + value + " is not one of allowed values " + JSON.stringify(allowed_values));
+                throw new Error("the value " + value + " is not one of allowed values " + JSON.stringify(allowed_values));
             }
         }
 

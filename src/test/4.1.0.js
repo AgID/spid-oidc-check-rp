@@ -25,7 +25,7 @@ class Test_4_1_0 extends TestUserinfoResponse {
             && !this.metadata.configuration.signed_jwks_uri
         ) {
             this.notes = this.metadata.configuration;
-            throw("neither jwks or signed_jwks_uri is present into OP metadata");
+            throw new Error("neither jwks or signed_jwks_uri is present into OP metadata");
         }
 
         let op_jwks = this.metadata.configuration.jwks;
@@ -33,7 +33,7 @@ class Test_4_1_0 extends TestUserinfoResponse {
         if(!op_jwks) {
             //let op_signed_jwks = (await axios.get(this.metadata.configuration.signed_jwks_uri)).data;
             this.notes = "signed_jwks_uri is not yet implemented. Please refer to AgID.";
-            throw("OP uses signed_jwks_uri");
+            throw new Error("OP uses signed_jwks_uri");
         }
 
 

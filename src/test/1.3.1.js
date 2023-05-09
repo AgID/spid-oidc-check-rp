@@ -14,17 +14,17 @@ class Test_1_3_1 extends TestMetadata {
         
         if(!this.metadata.configuration.client_id.toLowerCase().includes('https')) {
             this.notes = this.metadata.configuration.client_id;
-            throw("claim client_id is not a valid https URL");
+            throw new Error("claim client_id is not a valid https URL");
         } 
 
         if(this.metadata.configuration.client_id.toLowerCase().includes('?')) {
             this.notes = this.metadata.configuration.client_id;
-            throw("claim client_id contains query");
+            throw new Error("claim client_id contains query");
         } 
 
         if(this.metadata.configuration.client_id.toLowerCase().includes('#')) {
             this.notes = this.metadata.configuration.client_id;
-            throw("claim client_id contains fragment");
+            throw new Error("claim client_id contains fragment");
         } 
             
         this.notes = this.metadata.configuration.client_id;

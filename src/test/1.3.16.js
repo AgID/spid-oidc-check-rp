@@ -15,7 +15,7 @@ class Test_1_3_16 extends TestMetadata {
         if(this.metadata.configuration.id_token_signed_response_alg==null
             || this.metadata.configuration.id_token_signed_response_alg=='') {
             this.notes = this.metadata.configuration;
-            throw("the claim id_token_signed_response_alg is not present");
+            throw new Error("the claim id_token_signed_response_alg is not present");
         } 
 
         this.notes = this.metadata.configuration.id_token_signed_response_alg;

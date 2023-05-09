@@ -16,7 +16,7 @@ class Test_1_3_12 extends TestMetadata {
             (this.metadata.configuration.grant_types==null || this.metadata.configuration.grant_types=='')
          ) {
             this.notes = this.metadata.configuration;
-            throw("the claim grant_types is not present");
+            throw new Error("the claim grant_types is not present");
         } 
 
         this.notes = this.metadata.configuration.grant_types;

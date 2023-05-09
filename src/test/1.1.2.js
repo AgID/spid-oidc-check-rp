@@ -12,10 +12,16 @@ class Test_1_1_2 extends TestMetadata {
 
     async exec() {
         super.exec();
+
+        if(this.metadata.type!='configuration') {
+            this.notes = "N/A (document is not provided as openid-configuration)";
+            return true;
+        }
+        
         let response = await axios.get(this.metadata.url);
         if(!response.headers['content-type'].includes('application/json')) {
             this.notes = response.headers['content-type'];
-            throw("Content-Type is not 'application/json'");
+            throw new Error("Content-Type is not 'application/json'");
         } else {
             this.notes = response.headers['content-type'];
             return true;

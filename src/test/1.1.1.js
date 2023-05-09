@@ -13,9 +13,15 @@ class Test_1_1_1 extends TestMetadata {
 
     async exec() {
         super.exec();
+        
+        if(this.metadata.type!='configuration') {
+            this.notes = "N/A (document is not provided as openid-configuration)";
+            return true;
+        }
+
         let response = await axios.get(this.metadata.url);
         if(!validator.isJSON(JSON.stringify(response.data))) {
-            throw("The document is not a valid JSON document");
+            throw new Error("The document is not a valid JSON document");
         } else {
             return true;
         }

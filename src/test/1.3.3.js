@@ -15,7 +15,7 @@ class Test_1_3_3 extends TestMetadata {
         if(this.metadata.configuration.redirect_uris==null
             || this.metadata.configuration.redirect_uris=='') {
             this.notes = this.metadata.configuration.redirect_uris;
-            throw("the claim redirect_uris is not present");
+            throw new Error("the claim redirect_uris is not present");
         } 
 
         this.notes = this.metadata.configuration.redirect_uris;

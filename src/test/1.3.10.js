@@ -15,12 +15,12 @@ class Test_1_3_10 extends TestMetadata {
         if(this.metadata.configuration.response_types==null
             || this.metadata.configuration.response_types=='') {
             this.notes = this.metadata.configuration;
-            throw("the claim response_types is not present");
+            throw new Error("the claim response_types is not present");
         } 
 
         if(!Array.isArray(this.metadata.configuration.response_types)) {
             this.notes = this.metadata.configuration.response_types;
-            throw("the claim response_types is not an array");
+            throw new Error("the claim response_types is not an array");
         }
 
         this.notes = this.metadata.configuration.response_types;

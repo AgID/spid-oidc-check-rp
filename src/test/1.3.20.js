@@ -15,7 +15,7 @@ class Test_1_3_20 extends TestMetadata {
         if(this.metadata.configuration.token_endpoint_auth_method==null
             || this.metadata.configuration.token_endpoint_auth_method=='') {
             this.notes = this.metadata.configuration;
-            throw("the claim token_endpoint_auth_method is not present");
+            throw new Error("the claim token_endpoint_auth_method is not present");
         } 
 
         this.notes = this.metadata.configuration.token_endpoint_auth_method;

@@ -16,7 +16,7 @@ class Test_1_3_9 extends TestMetadata {
             (this.metadata.configuration.response_types==null || this.metadata.configuration.response_types=='')
          ) {
             this.notes = this.metadata.configuration;
-            throw("the claim response_types is not present");
+            throw new Error("the claim response_types is not present");
         } 
 
         return true;

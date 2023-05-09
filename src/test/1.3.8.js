@@ -16,7 +16,7 @@ class Test_1_3_8 extends TestMetadata {
             (this.metadata.configuration.client_name==null || this.metadata.configuration.client_name=='')
          ) {
             this.notes = this.metadata.configuration;
-            throw("the claim client_name is not present");
+            throw new Error("the claim client_name is not present");
         } 
 
         return true;

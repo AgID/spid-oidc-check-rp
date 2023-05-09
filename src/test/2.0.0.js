@@ -13,7 +13,7 @@ class Test_2_0_0 extends TestAuthRequest {
         super.exec();
         if(this.authrequest.method!='GET' && this.authrequest.method!='POST') {
             this.notes = this.authrequest;
-            throw("the request was not sent on HTTP method GET or POST");
+            throw new Error("the request was not sent on HTTP method GET or POST");
         } else {
             this.notes = this.authrequest.method;
             return true;

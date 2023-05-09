@@ -14,7 +14,7 @@ class Test_1_3_0 extends TestMetadata {
         if(this.metadata.configuration.client_id==null
             || this.metadata.configuration.client_id=='') {
             this.notes = this.metadata.configuration.client_id;
-            throw("claim client_id is not present");
+            throw new Error("claim client_id is not present");
         } else {
             this.notes = this.metadata.configuration.client_id;
             return true;

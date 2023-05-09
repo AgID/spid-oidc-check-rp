@@ -14,7 +14,7 @@ class Test_4_0_0 extends TestUserinfoRequest {
 
         if(this.userinforequest.method.toLowerCase()!='get') {
             this.notes = this.userinforequest.method;
-            throw("the request has not be sent on HTTP GET method");
+            throw new Error("the request has not be sent on HTTP GET method");
         }
  
         this.notes = this.userinforequest.method;

@@ -15,7 +15,7 @@ class Test_1_3_19 extends TestMetadata {
         if(this.metadata.configuration.userinfo_encrypted_response_enc==null
             || this.metadata.configuration.userinfo_encrypted_response_enc=='') {
             this.notes = this.metadata.configuration;
-            throw("the claim userinfo_encrypted_response_enc is not present");
+            throw new Error("the claim userinfo_encrypted_response_enc is not present");
         } 
 
         this.notes = this.metadata.configuration.userinfo_encrypted_response_enc;

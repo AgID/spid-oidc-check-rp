@@ -16,12 +16,12 @@ class Test_1_3_5 extends TestMetadata {
         if(this.metadata.configuration.redirect_uris==null
             || this.metadata.configuration.redirect_uris=='') {
             this.notes = this.metadata.configuration.redirect_uris;
-            throw("the claim redirect_uris is not present");
+            throw new Error("the claim redirect_uris is not present");
         } 
 
         if(!Array.isArray(this.metadata.configuration.redirect_uris)) {
             this.notes = this.metadata.configuration.redirect_uris;
-            throw("the claim redirect_uris is not an array");
+            throw new Error("the claim redirect_uris is not an array");
         }
 
         this.notes = {};
@@ -51,7 +51,7 @@ class Test_1_3_5 extends TestMetadata {
             }
         }
 
-        if(!valid) throw("some redirect_uri is not a valid URI");
+        if(!valid) throw new Error("some redirect_uri is not a valid URI");
 
         return true;
 

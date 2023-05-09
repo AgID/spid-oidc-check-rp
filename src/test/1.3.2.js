@@ -14,7 +14,7 @@ class Test_1_3_2 extends TestMetadata {
         
         if(!this.metadata.url.toLowerCase().includes(this.metadata.configuration.client_id.toLowerCase())) {
             this.notes = this.metadata.configuration.client_id;
-            throw("claim client_id does not match with the URL of metadata document");
+            throw new Error("claim client_id does not match with the URL of metadata document");
         } 
 
         this.notes = this.metadata.configuration.client_id;

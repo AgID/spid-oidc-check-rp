@@ -14,7 +14,7 @@ class Test_3_0_0 extends TestTokenRequest {
 
         if(!this.tokenrequest.mimetype || this.tokenrequest.mimetype!='application/x-www-form-urlencoded') {
             this.notes = this.tokenrequest.mimetype;
-            throw("Content-Type is not application/x-www-form-urlencoded");
+            throw new Error("Content-Type is not application/x-www-form-urlencoded");
         }
  
         this.notes = this.tokenrequest.mimetype;

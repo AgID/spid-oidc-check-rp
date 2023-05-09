@@ -17,7 +17,7 @@ class Test_1_3_7 extends TestMetadata {
             && (this.metadata.configuration.signed_jwks_uri==null || this.metadata.configuration.signed_jwks_uri=='')
          ) {
             this.notes = this.metadata.configuration;
-            throw("the claims jwks and signed_jwks_uri are both not present");
+            throw new Error("the claims jwks and signed_jwks_uri are both not present");
         } 
 
         return true;
