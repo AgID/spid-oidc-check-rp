@@ -14,8 +14,28 @@ function view(me) {
                     <div className="main">
                         <div className="row">
                             <div className="col-sm-12 mb-3">
+                                <label className="mb-3">
+                                    URL Type
+                                </label>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="check-type" id="type-configuration" 
+                                        checked={me.state.type=='configuration'} 
+                                        onChange={()=> { me.setType('configuration') }} />
+                                    <label class="form-check-label" for="flexRadioDefault1">
+                                        <strong>URL OIDC Core Configuration</strong> (.well-known/openid-configuration)
+                                    </label>
+                                </div>
+                                <div class="form-check mb-5">
+                                    <input class="form-check-input" type="radio" name="check-type" id="type-federation" 
+                                        checked={me.state.type=='federation'}
+                                        onChange={()=> { me.setType('federation') }} />
+                                    <label class="form-check-label" for="flexRadioDefault2">
+                                        <strong>URL OpenID Federation</strong> (.well-known/openid-federation)
+                                    </label>
+                                </div>
+                                
                                 <label for="input-metadata" className="mb-3">
-                                    URL .well-known/openid-configuration
+                                    URL { (me.state.type=='configuration')? '.well-known/openid-configuration' : '.well-known/openid-federation' }
                                 </label>
                                 <input id="input-metadata"
                                     type="text"

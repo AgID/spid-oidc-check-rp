@@ -128,9 +128,9 @@ class MainService {
 		});
 	}
 
-	downloadMetadata(url, callback_response, callback_error) {
-		Utility.log("POST /api/metadata/download");
-		axios.post(config.basepath + '/api/metadata/download?apikey=' + Utility.getApikey(), {url: url})
+	downloadMetadata(url, type, callback_response, callback_error) {
+		Utility.log("POST /api/metadata/" + type + "/download");
+		axios.post(config.basepath + '/api/metadata/' + type + '/download?apikey=' + Utility.getApikey(), {url: url})
 		.then(function(response) {
 			Utility.log("downloadMetadata Success", response.data);
 			callback_response(response.data);

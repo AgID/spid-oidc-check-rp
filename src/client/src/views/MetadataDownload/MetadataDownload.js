@@ -12,8 +12,9 @@ class MetadataDownload extends Component {
     super(props);
     
     this.state = {
-        url: "https://",
-        configuration: ""
+      type: "configuration", // configuration || federation
+      url: "https://",
+      configuration: ""
     };  
   }	
 
@@ -68,13 +69,17 @@ class MetadataDownload extends Component {
   }
   
 
+  setType(type) {
+    this.setState({ type: type });
+  }
+
   downloadMetadata(url) {
     let service = Services.getMainService();
     let store = ReduxStore.getMain();
     let util = ReduxStore.getUtil();
 
     Utility.blockUI(true);
-    service.downloadMetadata(url,
+    service.downloadMetadata(url, this.state.type,
       (metadata) => { 
         Utility.blockUI(false);
         this.setState({ url: metadata.url, configuration: metadata.configuration });

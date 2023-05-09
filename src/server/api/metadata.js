@@ -2,6 +2,7 @@ const fs = require('fs-extra');
 const axios = require('axios');
 const moment = require('moment');
 const validator = require('validator');
+const jwt_decode = require('jwt-decode');
 const Utility = require('../lib/utils');
 const config_dir = require('../../config/dir.json');
 const config_test = require("../../config/test.json");
@@ -80,7 +81,7 @@ module.exports = function(app, checkAuthorisation, database) {
     */
     
     // download metadata 
-    app.post("//api/metadata/download", function(req, res) {
+    app.post("//api/metadata/:type/download", function(req, res) {
     
         // check if apikey is correct
         let authorisation = checkAuthorisation(req);
@@ -95,40 +96,82 @@ module.exports = function(app, checkAuthorisation, database) {
         let store_type = (authorisation=='API')? req.query.store_type : (req.session.store_type)? req.session.store_type : 'test';
         let organization = (authorisation=='API')? req.body.organization : (req.session.entity)? req.session.entity.id : null;
         let external_code = (authorisation=='API')? req.body.external_code : req.session.external_code;
+        let type = req.params.type;
 
         if(!url) { return res.status(500).send("Please insert a valid URL"); }
         if(!user) { return res.status(400).send("Parameter user is missing"); }
         if(!store_type) { return res.status(400).send("Parameter store_type is missing"); }
         //if(!organization) { return res.status(400).send("Parameter organization is missing"); }
         //if(!external_code) { return res.status(400).send("Parameter external_code is missing"); }
+        if(type!='configuration' && type!='federation') return res.status(400).send('Metadata type MUST be configuration or federation');
 
-        axios.get(url, {
-            responseType: "json",
-        })
-        .then(function(response) {
-            let configuration = response.data;
-            Utility.log(".well-known/openid-configuration", url);
-            console.log(configuration); 
-            
-            if(!validator.isJSON(JSON.stringify(configuration), 
-                { allow_primitives: true })) {
-                Utility.log("Error while parsing JSON");
-                throw "Error while parsing JSON"; 
-            }
+        if(type=='configuration') {
+            axios.get(url, {
+                responseType: "json",
+            })
+            .then(function(response) {
+                let configuration = response.data;
+                Utility.log(".well-known/openid-configuration", url);
+                console.log(configuration); 
+                
+                if(!validator.isJSON(JSON.stringify(configuration), 
+                    { allow_primitives: true })) {
+                    Utility.log("Error while parsing JSON");
+                    throw "Error while parsing JSON"; 
+                }
 
-            let metadata = {
-                url: url,
-                configuration: configuration
-            };
+                let metadata = {
+                    url: url,
+                    type: 'configuration',
+                    entity_statement: null,
+                    configuration: configuration
+                };
 
-            database.setMetadata(user, external_code, store_type, metadata);
-            req.session.store.metadata = metadata;
-            res.status(200).json(metadata);
-        })
-        .catch(function(err) {
-            Utility.log("ERR /api/metadata/download", err);
-            res.status(500).send(err.toString());
-        });
+                database.setMetadata(user, external_code, store_type, metadata);
+                req.session.store.metadata = metadata;
+                res.status(200).json(metadata);
+            })
+            .catch(function(err) {
+                Utility.log("ERR /api/metadata/download", err);
+                res.status(500).send(err.toString());
+            });
+        } else if(type=='federation') {
+            axios.get(url, {
+                responseType: "application/entity-statement+jwt",
+            })
+            .then(function(response) {
+                let entity_statement = response.data;
+                Utility.log(".well-known/openid-federation", url);
+                console.log(entity_statement); 
+                
+                let decoded_entity_statement = jwt_decode(entity_statement);
+                let configuration = decoded_entity_statement['metadata']['openid_relying_party'];
+                
+                if(!validator.isJSON(JSON.stringify(configuration), 
+                    { allow_primitives: true })) {
+                    Utility.log("Error while parsing JSON");
+                    throw "Error while parsing JSON"; 
+                }
+
+                let metadata = {
+                    url: url,
+                    type: 'federation',
+                    entity_statement: entity_statement,
+                    configuration: configuration
+                };
+    
+                database.setMetadata(user, external_code, store_type, metadata);
+                req.session.store.metadata = metadata;
+                res.status(200).json(metadata);
+            })
+            .catch(function(err) {
+                Utility.log("ERR /api/metadata/download", err);
+                res.status(500).send(err.toString());
+            });
+
+        } else {
+            // other types not supported
+        }
     });
     
     // execute test for metadata
