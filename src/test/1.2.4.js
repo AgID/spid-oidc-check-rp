@@ -27,14 +27,14 @@ class Test_1_2_4 extends TestMetadata {
         
         if (!validator.isJWT(returnedDocument)) {
             this.notes = returnedDocument;
-            throw 'returned document is not a valid JWT';
+            throw new Error('returned document is not a valid JWT');
         }
     
         let jwks = (await axios.get(this.metadata.configuration.jwks_uri)).data;
     
         if (jwks.keys == null || jwks.keys == '') {
             this.notes = jwks;
-            throw 'JWKS not found';
+            throw new Error('JWKS not found');
         }
     
         let keystore = jose.JWK.createKeyStore();
@@ -49,7 +49,7 @@ class Test_1_2_4 extends TestMetadata {
         this.notes = returnedDocument;
 
         if (!returnedDocumentVerified) {
-            throw 'document not verifiable';
+            throw new Error('document not verifiable');
         }
     }
 
