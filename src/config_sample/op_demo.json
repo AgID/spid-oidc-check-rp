@@ -1,0 +1,23 @@
+{
+	"enabled": true,
+	"basepath": "",
+	"issuer": "http://localhost:8085",
+	"authorization_endpoint": "http://localhost:8085/authorization",
+	"token_endpoint": "http://localhost:8085/token",
+	"userinfo_endpoint": "http://localhost:8085/userinfo",
+	"introspection_endpoint": "http://localhost:8085/introspection",
+	"revocation_endpoint": "http://localhost:8085/revocation",
+	"op_name": "Agenzia per l'Italia Digitale",
+	"op_uri": "http://localhost:8085",
+	
+	"agidloginAuthentication": false,
+	"agidloginClientID": "",
+	"agidloginClientSecret": "",
+	"agidloginRedirectURI": "",
+	"agidloginPostLogoutRedirectURI": "",
+
+	"localloginUser": "validator",
+	"localloginPasswordHash": "f82af32160bc53112ca118abbf57fa6fed47eb90291a1d1d92f438ae2ed74ef6",
+	"autoLogin": true
+}
+ 
