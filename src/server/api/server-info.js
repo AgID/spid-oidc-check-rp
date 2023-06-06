@@ -3,7 +3,7 @@ const server_package = require("../package.json");
 module.exports = function (app) {
 
     // get server info
-    app.get("//api/server-info", function (req, res) {
+    app.get("/api/server-info", function (req, res) {
 
         if (req.session != null) {
             let serverInfo = {

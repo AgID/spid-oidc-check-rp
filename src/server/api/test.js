@@ -10,7 +10,7 @@ const Test = require('../lib/test/Test.js');
  
 module.exports = function(app, checkAuthorisation) {
 
-    app.get("//api/test/suite/:testsuite", function(req, res) {
+    app.get("/api/test/suite/:testsuite", function(req, res) {
 
         // check if apikey is correct
         let authorisation = checkAuthorisation(req);

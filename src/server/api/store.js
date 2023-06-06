@@ -6,7 +6,7 @@ module.exports = function(app, checkAuthorisation, database) {
 
     // list all workspace for user and, maybe, requested store type
     //this not saves store to session, use GET /api/store to recover a store instead
-    app.get("//api/stores", function(req, res) {  
+    app.get("/api/stores", function(req, res) {  
         
         // check if apikey is correct
         if(!checkAuthorisation(req)) {
@@ -34,7 +34,7 @@ module.exports = function(app, checkAuthorisation, database) {
 
     // recover workspace from store cache
     // this RECOVER store from cache and SAVE it to session
-    app.get("//api/store", function(req, res) {
+    app.get("/api/store", function(req, res) {
     
         // check if apikey is correct
         if(!checkAuthorisation(req)) {
@@ -95,7 +95,7 @@ module.exports = function(app, checkAuthorisation, database) {
     });
 
     // delete workspace from store cache
-    app.delete("//api/store", function(req, res) {
+    app.delete("/api/store", function(req, res) {
     
         // check if apikey is correct
         if(!checkAuthorisation(req)) {

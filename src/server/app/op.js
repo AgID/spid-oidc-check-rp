@@ -15,7 +15,7 @@ const config_test = require("../../config/test.json");
 module.exports = function(app, checkAuthorisation, database) {
 
     // get metadata
-    app.get("//.well-known/openid-configuration", async function (req, res) {
+    app.get("/.well-known/openid-configuration", async function (req, res) {
 
         let jwks_uri_host = (config_op.issuer.substring(-1)=='/')? config_op.issuer.substring(0, config_op.issuer.length-1) : config_op.issuer;
         let jwks_uri = jwks_uri_host + config_op.basepath + "/certs";     
@@ -44,7 +44,7 @@ module.exports = function(app, checkAuthorisation, database) {
     }); 
 
     // get certs
-    app.get("//certs", async function (req, res) {
+    app.get("/certs", async function (req, res) {
         let jwks = await makeJWKS();
         res.status(200).json(jwks);
     }); 
