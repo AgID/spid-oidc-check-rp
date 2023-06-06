@@ -5,7 +5,7 @@ const config_dir = require("../../config/dir.json");
 module.exports = function(app, checkAuthorisation) {
 
     // get info from session
-    app.get("//api/info", function(req, res) {
+    app.get("/api/info", function(req, res) {
         
         // check if apikey is correct
         if(!checkAuthorisation(req)) {

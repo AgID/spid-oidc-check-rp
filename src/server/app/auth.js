@@ -9,7 +9,7 @@ const config_op = require("../../config/op.json");
 module.exports = function(app, checkAuthorisation, authenticator) {
 
     // local authentication
-    app.get("//login", (req, res)=> {
+    app.get("/login", (req, res)=> {
         
         if(config_op.agidloginAuthentication) {
             res.redirect(authenticator.getAuthURL());
@@ -32,7 +32,7 @@ module.exports = function(app, checkAuthorisation, authenticator) {
     });
 
     // assert if local authentication apikey or AgID Login authentication
-    app.get("//login/assert", (req, res)=> {
+    app.get("/login/assert", (req, res)=> {
 
         // if autoLogin autologin with localloginUser
         if(config_op.autoLogin) recLocalLoginSession(req);
@@ -70,7 +70,10 @@ module.exports = function(app, checkAuthorisation, authenticator) {
             let apikey = sha256(userinfo.sub).toString();
             req.session.apikey = apikey;
 
-            res.redirect(config_op.basepath + "/worksave");
+            let basepath = config_op.basepath;
+            if(!basepath.endsWith('/')) basepath += '/';
+            res.redirect(basepath + "worksave");
+    
     
         }, (error)=> {
             Utility.log("Error", error);
@@ -81,17 +84,19 @@ module.exports = function(app, checkAuthorisation, authenticator) {
     });
 
     // session logout and AgID Login global logout
-    app.get("//logout", (req, res)=> {
+    app.get("/logout", (req, res)=> {
         req.session.destroy();
         if(config_op.agidloginAuthentication) {
             res.redirect(authenticator.getLogoutURL());
         } else {
-            res.redirect(config_op.basepath);
+            let basepath = config_op.basepath;
+            if(!basepath.endsWith('/')) basepath += '/';
+            res.redirect(basepath);
         }
     });
 
     // session logout and AgID Login global logout
-    app.get("//switch/:user", (req, res)=> {
+    app.get("/switch/:user", (req, res)=> {
         // check if apikey is correct
         let authorisation = checkAuthorisation(req);
         if(!authorisation) {
@@ -102,7 +107,11 @@ module.exports = function(app, checkAuthorisation, authenticator) {
 
         let user = req.params.user;
         req.session.user = user;
-        res.redirect(config_op.basepath + "/worksave");
+        let basepath = config_op.basepath;
+        if(!basepath.endsWith('/')) basepath += '/';
+
+        res.redirect(basepath + "/worksave");
+        
     });
     
 

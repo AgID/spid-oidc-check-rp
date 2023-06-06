@@ -55,5 +55,5 @@ docker build -t spid-oidc-check-rp .
 ```
 run
 ```
-docker run -t -i -p 8084:8084 spid-oidc-check-rp
+docker run -t -i -p 8083:8083 spid-oidc-check-rp
 ```

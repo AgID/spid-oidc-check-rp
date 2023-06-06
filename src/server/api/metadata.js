@@ -12,7 +12,7 @@ module.exports = function(app, checkAuthorisation, database) {
 
     // get downloaded metadata
     /*
-    app.get("//api/metadata", function(req, res) {
+    app.get("/api/metadata", function(req, res) {
 
         // check if apikey is correct
         let authorisation = checkAuthorisation(req);
@@ -81,7 +81,7 @@ module.exports = function(app, checkAuthorisation, database) {
     */
     
     // download metadata 
-    app.post("//api/metadata/:type/download", function(req, res) {
+    app.post("/api/metadata/:type/download", function(req, res) {
     
         // check if apikey is correct
         let authorisation = checkAuthorisation(req);
@@ -175,7 +175,7 @@ module.exports = function(app, checkAuthorisation, database) {
     });
     
     // execute test for metadata
-    app.get("//api/metadata/check/:testcase", async function(req, res) {
+    app.get("/api/metadata/check/:testcase", async function(req, res) {
         
         // check if apikey is correct
         let authorisation = checkAuthorisation(req);
@@ -238,7 +238,7 @@ module.exports = function(app, checkAuthorisation, database) {
     });
 
     // return last validation from store
-    app.get("//api/metadata/lastcheck/:testcase", function(req, res) {
+    app.get("/api/metadata/lastcheck/:testcase", function(req, res) {
 
         // check if apikey is correct
         let authorisation = checkAuthorisation(req);
@@ -291,7 +291,7 @@ module.exports = function(app, checkAuthorisation, database) {
 
     /*
     // delete metadata
-    app.delete("//api/metadata", function(req, res) {
+    app.delete("/api/metadata", function(req, res) {
         
         // check if apikey is correct
         let authorisation = checkAuthorisation(req);
@@ -322,7 +322,7 @@ module.exports = function(app, checkAuthorisation, database) {
     */
 
     // set test for metadata
-    app.patch("//api/metadata/:testcase/:test", async function(req, res) {
+    app.patch("/api/metadata/:testcase/:test", async function(req, res) {
         
         // check if apikey is correct
         let authorisation = checkAuthorisation(req);
