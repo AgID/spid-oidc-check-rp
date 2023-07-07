@@ -14,34 +14,18 @@ const config_test = require("../../config/test.json");
 
 module.exports = function(app, checkAuthorisation, database) {
 
-    // get metadata
+    // get metadata (OIDC CORE)
     app.get("/.well-known/openid-configuration", async function (req, res) {
-
-        let jwks_uri_host = (config_op.issuer.substring(-1)=='/')? config_op.issuer.substring(0, config_op.issuer.length-1) : config_op.issuer;
-        let jwks_uri = jwks_uri_host + config_op.basepath + "/certs";     
-
-        res.status(200).json({
-            issuer: config_op.issuer,
-            authorization_endpoint: config_op.authorization_endpoint,
-            token_endpoint: config_op.token_endpoint,
-            userinfo_endpoint: config_op.userinfo_endpoint,
-            introspection_endpoint: config_op.introspection_endpoint,
-            revocation_endpoint: config_op.revocation_endpoint,
-            jwks: await makeJWKS(),
-            organization_name: config_op.op_name,
-            homepage_uri: config_op.op_uri,
-            request_object_signing_alg_values_supported: ["RS256", "RS512"],
-            id_token_signing_alg_values_supported: ["RS256", "RS512"],
-            userinfo_signing_alg_values_supported: ["RS256", "RS512"],
-            userinfo_encryption_alg_values_supported: ["RSA-OAEP", "RSA-OAEP-256"],
-            userinfo_encryption_enc_values_supported: ["A128CBC-HS256", "A256CBC-HS512"],
-            token_endpoint_auth_method_supported: ["private_key_jwt"],
-            acr_values_supported: ["https://www.spid.gov.it/SpidL1", "https://www.spid.gov.it/SpidL2", "https://www.spid.gov.it/SpidL3"],
-            request_parameter_supported: true,
-            subject_types_supported: ["pairwise"],
-            response_types_supported: ["code"]
-        })
+        let metadata = await makeMetadata();
+        res.status(200).json(metadata);
     }); 
+
+    // get entity configuration (OIDC FEDERATION)
+    app.get("/.well-known/openid-federation", async function (req, res) {
+        let entity_statement = await makeEntityStatement();
+        res.set('Content-Type', 'application/entity-statement+jwt');
+        res.status(200).send(entity_statement);
+    });
 
     // get certs
     app.get("/certs", async function (req, res) {
@@ -50,7 +34,7 @@ module.exports = function(app, checkAuthorisation, database) {
     }); 
 
     // OIDC Authorization Endpoint
-    app.all("//authorization", async function(req, res) { 
+    app.all("/authorization", async function(req, res) { 
         let params = (req.method=='POST')? req.body : (req.method=='GET')? req.query : null;
         console.log("Authorization Request", req.body);     
         
@@ -65,7 +49,7 @@ module.exports = function(app, checkAuthorisation, database) {
     });
 
     // OIDC Token Endpoint
-    app.all("//token", async function(req, res) { 
+    app.all("/token", async function(req, res) { 
 
         let tokenrequest = {
             method: req.method,
@@ -186,7 +170,7 @@ module.exports = function(app, checkAuthorisation, database) {
     });
 
     // OIDC Userinfo Endpoint
-    app.all("//userinfo", async function(req, res) { 
+    app.all("/userinfo", async function(req, res) { 
 
         // Authorization: Bearer access_token
         let access_token = req.get('Authorization').substring(7);
@@ -318,6 +302,80 @@ module.exports = function(app, checkAuthorisation, database) {
 
 
     /* --- INNER FUNCTIONS --- */
+
+    async function makeMetadata() {
+        return {
+            issuer: config_op.issuer,
+            authorization_endpoint: config_op.authorization_endpoint,
+            token_endpoint: config_op.token_endpoint,
+            userinfo_endpoint: config_op.userinfo_endpoint,
+            introspection_endpoint: config_op.introspection_endpoint,
+            revocation_endpoint: config_op.revocation_endpoint,
+            jwks: await makeJWKS(),
+            organization_name: config_op.op_name,
+            homepage_uri: config_op.op_uri,
+            request_object_signing_alg_values_supported: ["RS256", "RS512"],
+            id_token_signing_alg_values_supported: ["RS256", "RS512"],
+            userinfo_signing_alg_values_supported: ["RS256", "RS512"],
+            userinfo_encryption_alg_values_supported: ["RSA-OAEP", "RSA-OAEP-256"],
+            userinfo_encryption_enc_values_supported: ["A128CBC-HS256", "A256CBC-HS512"],
+            token_endpoint_auth_method_supported: ["private_key_jwt"],
+            acr_values_supported: ["https://www.spid.gov.it/SpidL1", "https://www.spid.gov.it/SpidL2", "https://www.spid.gov.it/SpidL3"],
+            request_parameter_supported: true,
+            subject_types_supported: ["pairwise"],
+            response_types_supported: ["code"]
+        };
+    }
+
+    async function makeEntityStatement() {
+        const config_key = fs.readFileSync(path.resolve(__dirname, '../../config/spid-oidc-check-rp-sig.key'));
+        const organization_name = "Agenzia per l'Italia Digitale";
+        const keystore = jose.JWK.createKeyStore();
+        
+        const key = await keystore.add(config_key, 'pem');
+        const thumbprint = await key.thumbprint('SHA-256');
+
+        const header = {
+            kid: base64url.encode(thumbprint),
+            //x5c: [x5c.toString("base64")]
+        }
+
+        const iat = moment();
+        const exp = iat.clone().add(1, 'years')
+
+        const payload = JSON.stringify({ 
+            iss: config_op.issuer,
+            sub: config_op.issuer,
+            iat: iat.unix(),
+            exp: exp.unix(),
+            jwks: await makeJWKS(),
+            metadata: {
+                "federation_entity": {
+                    "homepage_uri": config_op.op_uri,
+                    "policy_uri": config_op.op_uri + "/policy",
+                    "logo_uri": config_op.op_uri + "/logo",
+                    "contacts": "spid.tech@agid.gov.it",
+                    "federation_resolve_endpoint": null,
+                    "organization_name": config_op.op_name
+                },
+                "openid_provider": await makeMetadata(),
+            },
+            authority_hints: [
+                "https://registry.spid.gov.it"
+            ],
+            trust_marks: [
+    
+            ]
+        });
+
+        const entity_statement = await jose.JWS.createSign({
+            format: 'compact',
+            alg: 'RS256',
+            fields: {...header}
+        }, key).update(payload).final();
+
+        return entity_statement;
+    }
 
     async function makeJWKS() {
 
