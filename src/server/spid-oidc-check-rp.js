@@ -10,6 +10,7 @@ const moment = require("moment");
 const config_server = require("../config/server.json");
 const config_op = require("../config/op.json");
 const config_op_demo = require("../config/op_demo.json");
+const config_api = require("../config/api.json");
 
 const Database = require("./lib/database");
 const Authenticator = require("./lib/authenticator");

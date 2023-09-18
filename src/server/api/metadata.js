@@ -7,7 +7,7 @@ const Utility = require('../lib/utils');
 const config_dir = require('../../config/dir.json');
 const config_test = require("../../config/test.json");
 
- 
+
 module.exports = function(app, checkAuthorisation, database) {
 
     // get downloaded metadata
@@ -79,18 +79,18 @@ module.exports = function(app, checkAuthorisation, database) {
         res.status(200).send(result);
     });
     */
-    
+
     // download metadata 
     app.post("/api/metadata/:type/download", function(req, res) {
-    
+
         // check if apikey is correct
         let authorisation = checkAuthorisation(req);
         if(!authorisation) {
             error = {code: 401, msg: "Unauthorized"};
             res.status(error.code).send(error.msg);
             return null;
-        }	
-    
+        }
+
         let url = req.body.url;
         let user = (authorisation=='API')? req.body.user : req.session.user;
         let store_type = (authorisation=='API')? req.query.store_type : (req.session.store_type)? req.session.store_type : 'test';
@@ -109,81 +109,87 @@ module.exports = function(app, checkAuthorisation, database) {
             axios.get(url, {
                 responseType: "json",
             })
-            .then(function(response) {
-                let configuration = response.data;
-                Utility.log(".well-known/openid-configuration", url);
-                console.log(configuration); 
-                
-                if(!validator.isJSON(JSON.stringify(configuration), 
-                    { allow_primitives: true })) {
-                    Utility.log("Error while parsing JSON");
-                    throw "Error while parsing JSON"; 
-                }
+                .then(function(response) {
+                    let configuration = response.data;
+                    Utility.log(".well-known/openid-configuration", url);
+                    console.log(configuration);
 
-                let metadata = {
-                    url: url,
-                    type: 'configuration',
-                    entity_statement: null,
-                    configuration: configuration
-                };
+                    if(!validator.isJSON(JSON.stringify(configuration),
+                        { allow_primitives: true })) {
+                        Utility.log("Error while parsing JSON");
+                        throw "Error while parsing JSON";
+                    }
 
-                database.setMetadata(user, external_code, store_type, metadata);
-                req.session.store.metadata = metadata;
-                res.status(200).json(metadata);
-            })
-            .catch(function(err) {
-                Utility.log("ERR /api/metadata/download", err);
-                res.status(500).send(err.toString());
-            });
+                    let metadata = {
+                        url: url,
+                        type: 'configuration',
+                        entity_statement: null,
+                        configuration: configuration
+                    };
+
+                    database.setMetadata(user, external_code, store_type, metadata);
+                    if (!req.session.store) {
+                        req.session.store = {};
+                    }
+                    req.session.store.metadata = metadata;
+                    res.status(200).json(metadata);
+                })
+                .catch(function(err) {
+                    Utility.log("ERR /api/metadata/download", err);
+                    res.status(500).send(err.toString());
+                });
         } else if(type=='federation') {
             axios.get(url, {
                 responseType: "application/entity-statement+jwt",
             })
-            .then(function(response) {
-                let entity_statement = response.data;
-                Utility.log(".well-known/openid-federation", url);
-                console.log(entity_statement); 
-                
-                let decoded_entity_statement = jwt_decode(entity_statement);
-                let configuration = decoded_entity_statement['metadata']['openid_relying_party'];
-                
-                if(!validator.isJSON(JSON.stringify(configuration), 
-                    { allow_primitives: true })) {
-                    Utility.log("Error while parsing JSON");
-                    throw "Error while parsing JSON"; 
-                }
+                .then(function(response) {
+                    let entity_statement = response.data;
+                    Utility.log(".well-known/openid-federation", url);
+                    console.log(entity_statement);
 
-                let metadata = {
-                    url: url,
-                    type: 'federation',
-                    entity_statement: entity_statement,
-                    configuration: configuration
-                };
-    
-                database.setMetadata(user, external_code, store_type, metadata);
-                req.session.store.metadata = metadata;
-                res.status(200).json(metadata);
-            })
-            .catch(function(err) {
-                Utility.log("ERR /api/metadata/download", err);
-                res.status(500).send(err.toString());
-            });
+                    let decoded_entity_statement = jwt_decode(entity_statement);
+                    let configuration = decoded_entity_statement['metadata']['openid_relying_party'];
+
+                    if(!validator.isJSON(JSON.stringify(configuration),
+                        { allow_primitives: true })) {
+                        Utility.log("Error while parsing JSON");
+                        throw "Error while parsing JSON";
+                    }
+
+                    let metadata = {
+                        url: url,
+                        type: 'federation',
+                        entity_statement: entity_statement,
+                        configuration: configuration
+                    };
+
+                    database.setMetadata(user, external_code, store_type, metadata);
+                    if (!req.session.store) {
+                        req.session.store = {};
+                    }
+                    req.session.store.metadata = metadata;
+                    res.status(200).json(metadata);
+                })
+                .catch(function(err) {
+                    Utility.log("ERR /api/metadata/download", err);
+                    res.status(500).send(err.toString());
+                });
 
         } else {
             // other types not supported
         }
     });
-    
+
     // execute test for metadata
     app.get("/api/metadata/check/:testcase", async function(req, res) {
-        
+
         // check if apikey is correct
         let authorisation = checkAuthorisation(req);
         if(!authorisation) {
             error = {code: 401, msg: "Unauthorized"};
             res.status(error.code).send(error.msg);
             return null;
-        }	
+        }
 
         let testcase = req.params.testcase;
         let user = (authorisation=='API')? req.body.user : req.session.user;
@@ -196,14 +202,14 @@ module.exports = function(app, checkAuthorisation, database) {
         //if(!organization) { return res.status(400).send("Parameter organization is missing"); }
         //if(!external_code) { return res.status(400).send("Parameter external_code is missing"); }
 
-        let metadata = (authorisation=='API')? database.getMetadata(req.query.user, store_type) : req.session.store.metadata;
+        let metadata = (authorisation=='API')? database.getMetadata(req.query.user, store_type) : (req.session.store ? req.session.store.metadata : null);
         if(!metadata || !metadata.configuration) { return res.status(400).send("Please download metadata first"); }
         console.log("metadata", metadata);
 
         let testsuite = "metadata";
         let hook = "metadata";
 
-        let tests = config_test[testsuite].cases[testcase].hook[hook]; 
+        let tests = config_test[testsuite].cases[testcase].hook[hook];
         let testcase_name = config_test[testsuite].cases[testcase].name;
         let testcase_description = config_test[testsuite].cases[testcase].description;
         let testcase_referements = config_test[testsuite].cases[testcase].ref;
@@ -218,10 +224,10 @@ module.exports = function(app, checkAuthorisation, database) {
             let test = new TestClass(metadata);
             if(test.hook==hook) {
                 let result = await test.getResult();
-                
+
                 // save single test to store
                 database.setTest(user, external_code, store_type, testsuite, testcase, hook, result);
-    
+
                 console.log(result);
                 report.push(result);
             }
@@ -260,7 +266,7 @@ module.exports = function(app, checkAuthorisation, database) {
         //if(!external_code) { return res.status(400).send("Parameter external_code is missing"); }
 
         let store = database.getStore(user, store_type);
-        
+
         let testsuite = "metadata";
         let hook = "metadata";
 
@@ -292,14 +298,14 @@ module.exports = function(app, checkAuthorisation, database) {
     /*
     // delete metadata
     app.delete("/api/metadata", function(req, res) {
-        
+
         // check if apikey is correct
         let authorisation = checkAuthorisation(req);
         if(!authorisation) {
             error = {code: 401, msg: "Unauthorized"};
             res.status(error.code).send(error.msg);
             return null;
-        }	
+        }
 
         if(authorisation=='API') {
             if(!req.query.user) { return res.status(400).send("Parameter user is missing"); }
@@ -317,20 +323,20 @@ module.exports = function(app, checkAuthorisation, database) {
         } else {
             res.status(401).send("Unhautorized");
         }
-        
+
     });
     */
 
     // set test for metadata
     app.patch("/api/metadata/:testcase/:test", async function(req, res) {
-        
+
         // check if apikey is correct
         let authorisation = checkAuthorisation(req);
         if(!authorisation) {
             error = {code: 401, msg: "Unauthorized"};
             res.status(error.code).send(error.msg);
             return null;
-        }	
+        }
 
         let testcase = req.params.testcase;
         let test = req.params.test;
@@ -345,7 +351,7 @@ module.exports = function(app, checkAuthorisation, database) {
         //if(!organization) { return res.status(400).send("Parameter organization is missing"); }
         //if(!external_code) { return res.status(400).send("Parameter external_code is missing"); }
 
-        let metadata = (authorisation=='API')? database.getMetadata(req.query.user, store_type) : req.session.store.metadata;
+        let metadata = (authorisation=='API')? database.getMetadata(req.query.user, store_type) : (req.session.store ? req.session.store.metadata : null);
         if(!metadata || !metadata.configuration) { return res.status(400).send("Please download metadata first"); }
         console.log("metadata", metadata);
 
@@ -363,7 +369,7 @@ module.exports = function(app, checkAuthorisation, database) {
         // get test and patch
         let saved_test = store.test[testsuite]['cases'][testcase]['hook'][hook][test];
         for(let p in patch_data) {
-            saved_test[p] = patch_data[p]; 
+            saved_test[p] = patch_data[p];
         }
         database.setTest(user, external_code, store_type, testsuite, testcase, hook, saved_test);
 
