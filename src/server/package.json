@@ -1,6 +1,6 @@
 {
   "name": "spid-oidc-check-rp",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "SPID OIDC Conformance Test Tool for RP",
   "main": "spid-oidc-check-rp",
   "author": "Michele D'Amico (damikael) - AgID",
