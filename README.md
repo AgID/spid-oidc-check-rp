@@ -24,10 +24,11 @@ create directory for database
 ```
 mkdir data
 ```
-configure same base path on
+configure same base path [at least '/'] on
  - src/client/src/config.json
  - src/config/server.json
  - src/config/op.json
+
 
 compile and build the client
 ```

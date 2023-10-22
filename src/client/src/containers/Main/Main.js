@@ -192,7 +192,7 @@ class Main extends Component {
 								<Sidebar {...this.props}/> 
 								
 								<main className="main">
-									<img className="agid-logo-print" src="/../../img/spid-agid-logo-lb.png" />
+									<img className="agid-logo-print" src="../img/spid-agid-logo-lb.png" />
 
 									<Breadcrumb {...this.props} user={this.state.user}/>	
 									<Container fluid>

@@ -19,7 +19,7 @@ class MainService {
 
 	login(options, callback_response, callback_error) {
 		Utility.log("GET /login");
-		axios.get(config.basepath + '/login?user=' + options.user + '&password=' + options.password)
+		axios.get(config.basepath + 'login?user=' + options.user + '&password=' + options.password)
 		.then((response)=> {
 			callback_response(response.data.apikey);
 		})
@@ -30,7 +30,7 @@ class MainService {
 
 	assert(callback_response, callback_error) {
 		Utility.log("GET /login/assert");
-		axios.get(config.basepath + '/login/assert')
+		axios.get(config.basepath + 'login/assert')
 		.then((response)=> {
 			callback_response(response.data);
 		})
@@ -56,7 +56,7 @@ class MainService {
 
 	getInfo(callback_response, callback_nosession, callback_error) {
 		Utility.log("GET /api/info");
-		axios.get(config.basepath + '/api/info?apikey=' + Utility.getApikey())
+		axios.get(config.basepath + 'api/info?apikey=' + Utility.getApikey())
 		.then(function(response) {
 			Utility.log("getInfo Success", response.data);
 			if(response.data.metadata.configuration && response.data.request) {
@@ -73,7 +73,7 @@ class MainService {
 
 	loadAllWorkspace(callback_response, callback_nosession, callback_error) {
 		Utility.log("GET /api/stores?apikey=" + Utility.getApikey());
-		axios.get(config.basepath + '/api/stores?apikey=' + Utility.getApikey())
+		axios.get(config.basepath + 'api/stores?apikey=' + Utility.getApikey())
 		.then(function(response) {
 			Utility.log("loadAllWorkspace Success", response.data);
             callback_response(response.data);
@@ -90,7 +90,7 @@ class MainService {
 
 	loadWorkspace(store_type, callback_response, callback_nosession, callback_error) {
 		Utility.log("GET /api/store?store_type=" + store_type + "&apikey=" + Utility.getApikey());
-		axios.get(config.basepath + '/api/store?store_type=' + store_type + '&apikey=' + Utility.getApikey())
+		axios.get(config.basepath + 'api/store?store_type=' + store_type + '&apikey=' + Utility.getApikey())
 		.then(function(response) {
 			Utility.log("loadWorkspace Success", response.data);
             callback_response(response.data);
@@ -106,7 +106,7 @@ class MainService {
 
 	saveWorkspace(data) {
 		Utility.log("POST /api/store", data);
-		axios.post(config.basepath + '/api/store?apikey=' + Utility.getApikey(), data)
+		axios.post(config.basepath + 'api/store?apikey=' + Utility.getApikey(), data)
 		.then(function(response) {
 			Utility.log("saveWorkspace Success", response.data);
 		})
@@ -117,7 +117,7 @@ class MainService {
 
 	resetWorkspace(store_type, callback_response, callback_error) {
 		Utility.log("DELETE /api/store?store_type=" + store_type);
-		axios.delete(config.basepath + '/api/store?store_type='+store_type+'&apikey=' + Utility.getApikey())
+		axios.delete(config.basepath + 'api/store?store_type='+store_type+'&apikey=' + Utility.getApikey())
 		.then(function(response) {
 			Utility.log("resetWorkspace Success", response.data);
 			callback_response();
@@ -130,7 +130,7 @@ class MainService {
 
 	downloadMetadata(url, type, callback_response, callback_error) {
 		Utility.log("POST /api/metadata/" + type + "/download");
-		axios.post(config.basepath + '/api/metadata/' + type + '/download?apikey=' + Utility.getApikey(), {url: url})
+		axios.post(config.basepath + 'api/metadata/' + type + '/download?apikey=' + Utility.getApikey(), {url: url})
 		.then(function(response) {
 			Utility.log("downloadMetadata Success", response.data);
 			callback_response(response.data);
@@ -143,7 +143,7 @@ class MainService {
 
 	checkMetadata(testcase, callback_response, callback_error) {
 		Utility.log("GET /api/metadata/check/" + testcase);
-		axios.get(config.basepath + '/api/metadata/check/' + testcase + 
+		axios.get(config.basepath + 'api/metadata/check/' + testcase + 
 			'?apikey=' + Utility.getApikey(), {timeout: 900000})
 		.then(function(response) {
 			Utility.log("checkMetadata Success", response.data);
@@ -157,7 +157,7 @@ class MainService {
 
 	getLastCheck(testcase, callback_response, callback_notfound, callback_error) {  
 		Utility.log("GET /api/metadata/lastcheck/" + testcase);
-		axios.get(config.basepath + '/api/metadata/lastcheck/' + testcase + '?apikey=' + Utility.getApikey(), {timeout: 900000})
+		axios.get(config.basepath + 'api/metadata/lastcheck/' + testcase + '?apikey=' + Utility.getApikey(), {timeout: 900000})
 		.then(function(response) {
 			Utility.log("getLastCheck Success", response.data);
 			callback_response(response.data);
@@ -176,7 +176,7 @@ class MainService {
 	patchMetadataTest(testcase, test, data, callback_response, callback_notfound, callback_error) {  
 		Utility.log("PATCH /api/metadata/" + testcase + "/" + test);
 		axios.patch(
-			config.basepath + '/api/metadata/' + testcase + '/' + test + '?apikey=' + Utility.getApikey(),
+			config.basepath + 'api/metadata/' + testcase + '/' + test + '?apikey=' + Utility.getApikey(),
 			{data: data},
 			{timeout: 900000}
 		)
@@ -198,7 +198,7 @@ class MainService {
 	patchOIDCTest(testcase, hook, test, data, callback_response, callback_notfound, callback_error) {  
 		Utility.log("PATCH /api/oidc/report/" + testcase + "/" + hook + "/" + test);
 		axios.patch(
-			config.basepath + '/api/oidc/report/' + testcase + '/' + hook + "/" + test + '?apikey=' + Utility.getApikey(),
+			config.basepath + 'api/oidc/report/' + testcase + '/' + hook + "/" + test + '?apikey=' + Utility.getApikey(),
 			{data: data},
 			{timeout: 900000}
 		)
@@ -219,7 +219,7 @@ class MainService {
 
 	getTestSuite(testsuite, callback_response, callback_error) {
 		Utility.log("GET /api/test/suite/" + testsuite);
-		axios.get(config.basepath + '/api/test/suite/' + testsuite + '?apikey=' + Utility.getApikey(), {timeout: 900000})
+		axios.get(config.basepath + 'api/test/suite/' + testsuite + '?apikey=' + Utility.getApikey(), {timeout: 900000})
 		.then(function(response) {
 			Utility.log("getTestSuite Success", response.data);
 			callback_response(response.data);
@@ -232,7 +232,7 @@ class MainService {
 
 	startCheck(testcase, callback_response, callback_error) {
 		Utility.log("GET /api/oidc/check/" + testcase);
-		axios.get(config.basepath + '/api/oidc/check/' + testcase + '?apikey=' + Utility.getApikey(), {timeout: 900000})
+		axios.get(config.basepath + 'api/oidc/check/' + testcase + '?apikey=' + Utility.getApikey(), {timeout: 900000})
 		.then(function(response) {
 			Utility.log("startCheck Success", response.data);
 			callback_response(response.data);
@@ -245,7 +245,7 @@ class MainService {
 
 	getReport(callback_response, callback_notfound, callback_error) {  
 		Utility.log("GET /api/oidc/report");
-		axios.get(config.basepath + '/api/oidc/report' + '?apikey=' + Utility.getApikey(), {timeout: 900000})
+		axios.get(config.basepath + 'api/oidc/report' + '?apikey=' + Utility.getApikey(), {timeout: 900000})
 		.then(function(response) {
 			Utility.log("getReport Success", response.data);
 			callback_response(response.data);
@@ -263,7 +263,7 @@ class MainService {
 	
 	getServerInfo(callback_response, callback_error) {
 		Utility.log("GET /api/server-info");
-		axios.get(config.basepath + '/api/server-info', {timeout: 900000})
+		axios.get(config.basepath + 'api/server-info', {timeout: 900000})
 		.then(function(response) {
 			Utility.log("getServerInfo Success", response.data);
 			callback_response(response.data);
