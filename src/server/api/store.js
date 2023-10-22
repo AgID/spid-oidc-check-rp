@@ -1,12 +1,12 @@
 const fs = require("fs-extra");
 const Utility = require("../lib/utils");
 const config_dir = require("../../config/dir.json");
-
+const config_op = require("../../config/op.json");
 module.exports = function(app, checkAuthorisation, database) {
 
     // list all workspace for user and, maybe, requested store type
     //this not saves store to session, use GET /api/store to recover a store instead
-    app.get("/api/stores", function(req, res) {  
+    app.get(config_op.basepath+"api/stores", function(req, res) {  
         
         // check if apikey is correct
         if(!checkAuthorisation(req)) {
@@ -34,7 +34,7 @@ module.exports = function(app, checkAuthorisation, database) {
 
     // recover workspace from store cache
     // this RECOVER store from cache and SAVE it to session
-    app.get("/api/store", function(req, res) {
+    app.get(config_op.basepath+"api/store", function(req, res) {
     
         // check if apikey is correct
         if(!checkAuthorisation(req)) {
@@ -71,7 +71,7 @@ module.exports = function(app, checkAuthorisation, database) {
     });
 
     // save workspace to store cache 
-    app.post("/api/store", function(req, res) {
+    app.post(config_op.basepath+"api/store", function(req, res) {
     
         // check if apikey is correct
         if(!checkAuthorisation(req)) {
@@ -95,7 +95,7 @@ module.exports = function(app, checkAuthorisation, database) {
     });
 
     // delete workspace from store cache
-    app.delete("/api/store", function(req, res) {
+    app.delete(config_op.basepath+"api/store", function(req, res) {
     
         // check if apikey is correct
         if(!checkAuthorisation(req)) {

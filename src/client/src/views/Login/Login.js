@@ -25,11 +25,11 @@ class Login extends Component {
 			Utility.setApikey(data.apikey);
 			Utility.log("Login result", Utility.isAuthenticated());	
 			if(Utility.isAuthenticated()) {
-				window.location=config.basepath + "/worksave";
+				window.location=config.basepath + "worksave";
 			}
 		}, 
 		(tologin)=> {
-			if(tologin.remote) window.location=config.basepath + "/login"; 
+			if(tologin.remote) window.location=config.basepath + "login"; 
 			else {
 				this.setState({local_auth: true});
 			}

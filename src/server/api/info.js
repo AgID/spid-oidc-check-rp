@@ -1,11 +1,12 @@
 const fs = require("fs-extra");
 const Utility = require("../lib/utils");
 const config_dir = require("../../config/dir.json");
+const config_op = require("../../config/op.json");
 
 module.exports = function(app, checkAuthorisation) {
 
     // get info from session
-    app.get("/api/info", function(req, res) {
+    app.get(config_op.basepath+"api/info", function(req, res) {
         
         // check if apikey is correct
         if(!checkAuthorisation(req)) {
