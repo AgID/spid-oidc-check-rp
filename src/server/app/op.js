@@ -23,8 +23,14 @@ module.exports = function(app, checkAuthorisation, database) {
     // get entity configuration (OIDC FEDERATION)
     app.get("/.well-known/openid-federation", async function (req, res) {
         let entity_statement = await makeEntityStatement();
-        res.set('Content-Type', 'application/entity-statement+jwt');
-        res.status(200).send(entity_statement);
+
+        //set method add charset into content-type
+        //res.set('Content-Type', 'application/entity-statement+jwt');
+        //res.status(200).send(entity_statement);
+
+        res.writeHead(200, { 'Content-Type': 'application/entity-statement+jwt' });
+        res.write(entity_statement);
+        res.end();
     });
 
     // get certs
