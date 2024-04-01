@@ -359,8 +359,8 @@ module.exports = function(app, checkAuthorisation, database) {
                 "federation_entity": {
                     "homepage_uri": config_op.op_uri,
                     "policy_uri": config_op.op_uri + "/policy",
-                    "logo_uri": config_op.op_uri + "/logo",
-                    "contacts": "spid.tech@agid.gov.it",
+                    "logo_uri": config_op.op_uri + "/logo.svg",
+                    "contacts": ["spid.tech@agid.gov.it"],
                     "federation_resolve_endpoint": null,
                     "organization_name": config_op.op_name
                 },
