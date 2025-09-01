@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Link, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { Container, Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import ScrollToTop from "react-scroll-to-top";
-import BlockUi from 'react-block-ui';
+import { BlockUI } from 'primereact/blockui';
 
 import Header from '../../components/Header/';
 import Sidebar from '../../components/Sidebar/';
@@ -185,7 +185,7 @@ class Main extends Component {
 
 			return (
 				<div id="main" className="container-main">
-					<BlockUi tag="div" blocking={this.state.blocking}> 
+					<BlockUI tag="div" blocked={this.state.blocking}> 
 						<div className="app">
 							<Header />
 							<div className="app-body">
@@ -214,7 +214,7 @@ class Main extends Component {
 							</div>
 							<Footer />
 						</div>
-					</BlockUi>
+					</BlockUI>
 
 					<Modal isOpen={this.state.modal_open}>
 						<ModalHeader>{this.state.modal_title}
