@@ -1,5 +1,5 @@
 const fs = require('fs-extra');
-const axios = require('axios');
+const axios = require('axios').default;
 const qs = require('qs');
 const moment = require('moment');
 const jose = require('node-jose');
