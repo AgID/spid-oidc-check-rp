@@ -1,6 +1,6 @@
 import React from 'react';
 import { UncontrolledTooltip } from 'reactstrap';
-import { BlockUI } from 'primereact/blockui';
+import { BlockUI } from "ns-react-block-ui";
 import Sticky from 'react-sticky-el';
 import AceEditor from '../../components/AceEditor/';
 import moment from 'moment';

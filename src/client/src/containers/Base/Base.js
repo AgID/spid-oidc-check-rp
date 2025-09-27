@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {Link, Routes, Route, Navigate, Outlet} from 'react-router-dom';
 import {Container, Button, Modal, ModalHeader, ModalBody, ModalFooter} from 'reactstrap';
-import { BlockUI } from 'primereact/blockui';
+import { BlockUI } from "ns-react-block-ui";
 import ReduxStore from "../../redux/store";
 import Utility from '../../utility';
   
@@ -60,7 +60,7 @@ class Base extends Component {
 	render() {    
     	return (
 			<section id="main"  className="container-base">   
-				<BlockUI tag="div" blocked={this.state.blocking}> 
+				<BlockUI tag="div" blocking={this.state.blocking} mode="full-screen" loader="default"> 
 					<div className="app">
 						<Container fluid>
 							<Outlet />

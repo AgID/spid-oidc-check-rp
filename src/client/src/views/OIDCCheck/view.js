@@ -1,5 +1,5 @@
 import React from 'react';
-import { BlockUI } from 'primereact/blockui';
+import { BlockUI } from "ns-react-block-ui";
 import Select from 'react-select';
 import Sticky from 'react-sticky-el';
 import './switches.css';
