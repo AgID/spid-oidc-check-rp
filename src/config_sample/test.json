@@ -33,7 +33,33 @@
                     "userinfo-request": ["4.0.0"],
                     "userinfo-response": ["4.1.0"]
                 }
-            }
+            },
+            "test-case-oidc-error-invalid-request": {
+                "name": "Test Case OIDC Core Authorization Error Response - invalid_request",
+                "description": "Make the authorization error response for invalid_request",
+                "ref": "SPID-QAD-OIDC-RP",
+                "hook": {
+                    "authentication-request": [],
+                    "authentication-response": ["2.4.7"],
+                    "token-request": [],
+                    "token-response": [], 
+                    "userinfo-request": [],
+                    "userinfo-response": []
+                }
+            },
+            "test-case-oidc-aa-0": {
+                "name": "Test Case Attribute Authority Grant Token Response",
+                "description": "Make the token response containing the grant token",
+                "ref": "SPID-QAD-OIDC-RP, SPID-QAD-OIDC-OP-AA",
+                "hook": {
+                    "authentication-request": ["2.0.0", "2.0.1"],
+                    "authentication-response": ["2.2.0"],
+                    "token-request": ["3.0.0"],
+                    "token-response": ["3.1.1"], 
+                    "userinfo-request": ["4.0.0"],
+                    "userinfo-response": ["4.1.0"]
+                }
+            }            
         }
     }
 }

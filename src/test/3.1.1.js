@@ -7,6 +7,7 @@ const path = require("path");
 const fs = require("fs");
 const crypto = require("crypto");
 const jose = require('../server/node_modules/node-jose');
+const axios = require('../server/node_modules/axios').default;
 const config_op  = require('../config/op.json');
 
 class Test_3_1_1 extends TestTokenResponse {
@@ -64,16 +65,38 @@ class Test_3_1_1 extends TestTokenResponse {
 
         let id_token_jti = Utility.getUUID();
 
-        let grant_token = await this.makeGrantToken(
-            null,
-            null,
-            "https://validator.spid.gov.it/aa",
-            "oidc:" + id_token_jti,
-            "https://www.spid.gov.it/SpidL2",
-            config_op.issuer,
-            "sub",
-            this.metadata.configuration.client_id
-        );
+        let tokens = undefined;
+
+        // grab first aa_location from authnrequest
+        let authorization_detail = this.authrequest.authorization_details.filter((d)=> {
+            return d.type=='https://spid.gov.it/attribute-authority/required-aa'
+        });
+
+        if(authorization_detail 
+            && Array.isArray(authorization_detail) 
+            && authorization_detail.length) {
+
+            tokens = [];
+            
+            for(let l in authorization_detail[0].locations) {  
+                let grant_token = await this.makeGrantToken(
+                    null,
+                    null,
+                    authorization_detail[0].locations[l],
+                    "oidc:" + id_token_jti,
+                    "https://www.spid.gov.it/SpidL2",
+                    config_op.issuer,
+                    "sub",
+                    this.metadata.configuration.client_id
+                );
+                tokens.push({
+                        type: "https://spid.gov.it/attribute-authority/grant-token",
+                        aud: authorization_detail[0].locations[l],
+                        token: grant_token
+                    }
+                );
+            }
+        }
 
         // make ID Token        
         let id_token = await Utility.makeJWS(
@@ -90,18 +113,7 @@ class Test_3_1_1 extends TestTokenResponse {
                 nbf: iat.unix(),
                 exp: iat.clone().add(5, 'm').unix(),
                 nonce: this.authrequest.nonce,
-                tokens: [
-                    {
-                        type: "https://spid.gov.it/attribute-authority/grant-token",
-                        aud: "https://as.aa1.it",
-                        token: grant_token
-                    },
-                    {
-                        type: "https://spid.gov.it/attribute-authority/grant-token",
-                        aud: "https://as.aa2.it",
-                        token: grant_token
-                    }
-                ]
+                tokens
             }
         );
 
@@ -120,14 +132,21 @@ class Test_3_1_1 extends TestTokenResponse {
     }
 
 
-    // Grant Token, prima firmato e po crittato
+    // Grant Token, prima firmato e poi crittato
     async makeGrantToken(header, payload, aud, sid, acr, iss, sub, actsub) {
-        const config_prv_key = fs.readFileSync(path.resolve(__dirname, '../config/spid-oidc-check-rp-sig.key'));
-        const config_pub_key = fs.readFileSync(path.resolve(__dirname, '../config/spid-oidc-check-rp-enc.crt'));
         const keystore = jose.JWK.createKeyStore();
-        
+
+        // add private key for signing
+        const config_prv_key = fs.readFileSync(path.resolve(__dirname, '../config/spid-oidc-check-rp-sig.key'));        
         const prv_key = await keystore.add(config_prv_key, 'pem');
-        const pub_key = await keystore.add(config_pub_key, 'pem');
+
+        // grab public cert of aa (aud) for encryption
+        let aa_config = (await axios.get(aud + '/.well-known/openid-federation')).data;
+        let aa_config_payload = jwt_decode(aa_config);
+        let jwk = JSON.stringify(aa_config_payload.jwks.keys.filter(k=> { return k.use=='enc' })[0]); 
+
+        // check if grant token is signed by openid provider that issued it
+        const pub_crt = await keystore.add(jwk, 'json');
 
         let kid = crypto.randomUUID();
         let iat = moment();
@@ -165,7 +184,7 @@ class Test_3_1_1 extends TestTokenResponse {
         const encryptedToken = await jose.JWE.createEncrypt({ 
             format: 'compact',
             fields: {...header} 
-        }, pub_key).update(signedGrantToken).final();
+        }, pub_crt).update(signedGrantToken).final();
 
         return encryptedToken;
     }    
