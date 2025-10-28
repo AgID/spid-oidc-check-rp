@@ -1,0 +1,9 @@
+sequenceDiagram
+    participant User
+    participant RP
+    participant OP
+    User->>RP: OP selection
+    RP-->>+User: 
+    User-->>-OP: authentication request
+    OP-->>User: 
+    User-->>RP: authentication response (invalid_request)
