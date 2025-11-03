@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Link, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { Container, Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import ScrollToTop from "react-scroll-to-top";
-import BlockUi from 'react-block-ui';
+import { BlockUI } from "ns-react-block-ui";
 
 import Header from '../../components/Header/';
 import Sidebar from '../../components/Sidebar/';
@@ -185,7 +185,7 @@ class Main extends Component {
 
 			return (
 				<div id="main" className="container-main">
-					<BlockUi tag="div" blocking={this.state.blocking}> 
+					<BlockUI tag="div" blocking={this.state.blocking} mode="full-screen" loader="default"> 
 						<div className="app">
 							<Header />
 							<div className="app-body">
@@ -205,8 +205,8 @@ class Main extends Component {
 										Report generato il: {this.state.infoprint_datetime}
 									</div>
 									
-									<ScrollToTop smooth className="btn-scroll" component={
-										<button className="btn btn-lg btn-primary"><span className="fa fa-chevron-up"></span></button>	
+									<ScrollToTop smooth className="btn btn-lg btn-primary" component={
+										<span className="fa fa-chevron-up"></span>
 									} />		
 												
 								</main>
@@ -214,7 +214,7 @@ class Main extends Component {
 							</div>
 							<Footer />
 						</div>
-					</BlockUi>
+					</BlockUI>
 
 					<Modal isOpen={this.state.modal_open}>
 						<ModalHeader>{this.state.modal_title}

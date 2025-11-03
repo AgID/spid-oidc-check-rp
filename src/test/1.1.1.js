@@ -1,5 +1,5 @@
 const TestMetadata = require('../server/lib/test/TestMetadata.js');
-const axios = require('../server/node_modules/axios');
+const axios = require('../server/node_modules/axios').default;
 const validator = require('../server/node_modules/validator');
 
 class Test_1_1_1 extends TestMetadata {

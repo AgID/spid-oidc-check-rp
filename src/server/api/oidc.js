@@ -1,5 +1,5 @@
 const fs = require('fs-extra');
-const axios = require('axios');
+const axios = require('axios').default;
 const qs = require('qs');
 const moment = require('moment');
 const jose = require('node-jose');
@@ -87,21 +87,30 @@ module.exports = function(app, checkAuthorisation, database) {
             }
         }
 
-        let code = database.saveRequest(
-            user, store_type, testsuite, testcase, 
-            authrequest.request_payload
-        );
-
-        let req_id = database.getRequestByCode(code).req_id;
-        database.setStep(req_id, 'authrequest', authrequest.request_payload); 
-
         let authresponse = {
-            code: code,
-            state: authrequest.request_payload.state,
             iss: config_op.issuer
         };
 
-        database.setStep(req_id, 'authresponse', authresponse); 
+        try {
+            let code = database.saveRequest(
+                user, store_type, testsuite, testcase, 
+                authrequest.request_payload
+            );
+
+            let req_id = database.getRequestByCode(code).req_id;
+            database.setStep(req_id, 'authrequest', authrequest.request_payload); 
+
+            authresponse = {
+                ...authresponse,
+                code: code,
+                state: authrequest.request_payload.state,
+            };
+
+            database.setStep(req_id, 'authresponse', authresponse); 
+        
+        } catch(error) {
+            console.log("Error" + error.toString());
+        }
         
 
         { // authentication-response
