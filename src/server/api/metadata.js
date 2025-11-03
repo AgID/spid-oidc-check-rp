@@ -1,5 +1,5 @@
 const fs = require('fs-extra');
-const axios = require('axios');
+const axios = require('axios').default;
 const moment = require('moment');
 const validator = require('validator');
 const jwt_decode = require('jwt-decode');

@@ -1,5 +1,5 @@
 import React from 'react';
-import BlockUi from 'react-block-ui';
+import { BlockUI } from "ns-react-block-ui";
 import './style.css';
 
 

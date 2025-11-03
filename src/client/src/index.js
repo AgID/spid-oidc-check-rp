@@ -2,8 +2,6 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-import BlockUi from 'react-block-ui';
-import 'react-block-ui/style.css';
 import 'font-awesome/css/font-awesome.min.css';
 
 import '../scss/style.scss'
