@@ -57,9 +57,27 @@
                     "token-request": ["3.0.0"],
                     "token-response": ["3.1.1"], 
                     "userinfo-request": ["4.0.0"],
-                    "userinfo-response": ["4.1.0"]
+                    "userinfo-response": ["4.1.0"],
+                    "granttoken-introspection-request": [],
+                    "granttoken-introspection-response": ["5.1.0"]
                 }
-            }            
+            },
+            "test-case-oidc-aa-1": {
+                "name": "Test Case Attribute Authority expired Grant Token Response (active=false)",
+                "image": "test-case-oidc-aa-0",
+                "description": "Make the token response containing an expired grant token and reply to grant token introspection with active=false",
+                "ref": "SPID-QAD-OIDC-RP, SPID-QAD-OIDC-OP-AA",
+                "hook": {
+                    "authentication-request": ["2.0.0", "2.0.1"],
+                    "authentication-response": ["2.2.0"],
+                    "token-request": ["3.0.0"],
+                    "token-response": ["3.1.2"], 
+                    "userinfo-request": ["4.0.0"],
+                    "userinfo-response": ["4.1.0"],
+                    "introspection-request": [],
+                    "introspection-response": ["5.1.1"]
+                }
+            }
         }
     }
 }
