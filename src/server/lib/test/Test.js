@@ -27,6 +27,9 @@ class Test {
     getHeader(key) { return this._headers[key]; }
     getHeaders() { return this._headers; }
 
+    setStatusCode(statuscode) { this._statuscode = statuscode; }
+    getStatusCode() { return this._statuscode; }
+
     async getResult() {
         let test = {
             num: this.num,

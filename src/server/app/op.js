@@ -304,6 +304,8 @@ module.exports = function(app, checkAuthorisation, database) {
     // OIDC Introspection Endpoint
     app.all("/introspection", async function(req, res) { 
 
+        let external_code = null;
+        
         let introspectionrequest = {
             method: req.method,
             mimetype: req.get('Content-Type'),
@@ -319,7 +321,7 @@ module.exports = function(app, checkAuthorisation, database) {
             description: 'token missing'
         });
 
-        introspectionresponse = {
+        let introspectionresponse = {
             active: false
         };
 
@@ -327,17 +329,99 @@ module.exports = function(app, checkAuthorisation, database) {
         
         if(token_header.typ=='aa-grant+jwt') {
             // Grant Token Introspection
+
             let grant_token = database.checkGrantToken(token);
-            if(grant_token!==false) {
-                introspectionresponse = {
-                    active: true,
-                    scope: grant_token['scope'],
-                    exp: grant_token['exp'],
-                    sub: grant_token['sub'],
-                    act: grant_token['act'],
-                    iss: grant_token['iss'],
-                    aud: grant_token['aud']
-                };
+            let request = database.getRequest(grant_token['req_id']);
+            if(request) {
+                let user = request.user;
+                let store_type = request.store_type;
+                let testsuite = request.testsuite;
+                let testcase = request.testcase;
+                let authrequest = request.authrequest;
+                let authresponse = request.authresponse;
+                let tokenrequest = request.tokenrequest;
+                let tokenresponse = request.tokenresponse;
+                let userinforequest = request.userinforequest;
+                let userinforesponse = request.userinforesponse;
+                let metadata = database.getMetadata(user, store_type);
+                let report = [];
+
+                { // grant token introspection-request
+                    let hook = "granttoken-introspection-request";
+
+                    let tests = config_test[testsuite].cases[testcase].hook[hook]; 
+                    let testcase_name = config_test[testsuite].cases[testcase].name;
+                    let testcase_description = config_test[testsuite].cases[testcase].description;
+                    let testcase_referements = config_test[testsuite].cases[testcase].ref;
+                    console.log("Test case name: " + testcase_name);
+                    console.log("Referements: " + testcase_referements);
+                    console.log("Test list to be executed: ", tests);
+
+                    if(tests!=null) {
+                        for(let t in tests) {
+                            let TestGrantTokenIntrospectionRequestClass = require("../../test/" + tests[t]);
+                            test = new TestGrantTokenIntrospectionRequestClass(metadata, authrequest, authresponse, tokenrequest, tokenresponse, userinforequest, userinforesponse, introspectionrequest);
+                            test.setDatabase(database);
+
+                            if(test.hook==hook) {
+                                result = await test.getResult();
+
+                                // save single test to store
+                                database.setTest(user, external_code, store_type, testsuite, testcase, hook, result);
+                                console.log(result);
+                                report.push(result);
+                            }
+                        }
+                    }
+                }
+
+                { // grant token introspection-response
+                    let hook = "granttoken-introspection-response";
+
+                    let tests = config_test[testsuite].cases[testcase].hook[hook]; 
+                    let testcase_name = config_test[testsuite].cases[testcase].name;
+                    let testcase_description = config_test[testsuite].cases[testcase].description;
+                    let testcase_referements = config_test[testsuite].cases[testcase].ref;
+                    console.log("Test case name: " + testcase_name);
+                    console.log("Referements: " + testcase_referements);
+                    console.log("Test list to be executed: ", tests);
+
+                    if(tests!=null) {
+                        for(let t in tests) {
+                            let TestGrantTokenIntrospectionResponseClass = require("../../test/" + tests[t]);
+                            test = new TestGrantTokenIntrospectionResponseClass(metadata, authrequest, authresponse, tokenrequest, tokenresponse, userinforequest, userinforesponse, introspectionrequest, introspectionresponse);
+                            test.setDatabase(database);
+
+                            if(test.hook==hook) {
+                                result = await test.getResult();
+
+                                // save single test to store
+                                database.setTest(user, external_code, store_type, testsuite, testcase, hook, result);
+                                console.log(result);
+                                report.push(result);
+                            }
+
+                            introspectionresponse = await test.getIntrospectionResponse();
+                            res.status(test.getStatusCode() || 200);
+                            res.set(test.getHeaders());
+                        }
+                    }
+                }
+            
+                database.setStep(request.req_id, 'introspectionresponse', introspectionresponse);        
+                database.setLastLog(user, external_code, store_type, testsuite, {
+                    details: {
+                        metadata: metadata,
+                        authrequest: authrequest,
+                        authresponse: authresponse, 
+                        tokenrequest: tokenrequest,
+                        tokenresponse: tokenresponse,
+                        introspectionrequest: introspectionrequest,
+                        introspectionresponse: introspectionresponse,
+                        report: report,
+                        report_datetime: moment().format("YYYY-MM-DD HH:mm:ss")
+                    }
+                });
             }
 
         } else if(token_header.typ=='at+jwt'){
@@ -349,7 +433,11 @@ module.exports = function(app, checkAuthorisation, database) {
                 let testsuite = request.testsuite;
                 let testcase = request.testcase;
                 let authrequest = request.authrequest;
-                let authresponse = {};
+                let authresponse = request.authresponse;
+                let tokenrequest = request.tokenrequest;
+                let tokenresponse = request.tokenresponse;
+                let userinforequest = request.userinforequest;
+                let userinforesponse = request.userinforesponse;
                 let metadata = database.getMetadata(user, store_type);
                 let report = [];
 
@@ -379,8 +467,8 @@ module.exports = function(app, checkAuthorisation, database) {
 
                     if(tests!=null) {
                         for(let t in tests) {
-                            let TestTokenRequestClass = require("../../test/" + tests[t]);
-                            test = new TestTokenRequestClass(metadata, authrequest, authresponse, tokenrequest, introspectionrequest);
+                            let TestIntrospectionRequestClass = require("../../test/" + tests[t]);
+                            test = new TestIntrospectionRequestClass(metadata, authrequest, authresponse, tokenrequest, tokenresponse, userinforequest, userinforesponse, introspectionrequest);
                             test.setDatabase(database);
 
                             if(test.hook==hook) {
@@ -408,8 +496,8 @@ module.exports = function(app, checkAuthorisation, database) {
 
                     if(tests!=null) {
                         for(let t in tests) {
-                            let TestTokenResponseClass = require("../../test/" + tests[t]);
-                            test = new TestTokenResponseClass(metadata, authrequest, authresponse, tokenrequest, tokenresponse, introspectionrequest, introspectionresponse);
+                            let TestIntrospectionResponseClass = require("../../test/" + tests[t]);
+                            test = new TestIntrospectionResponseClass(metadata, authrequest, authresponse, tokenrequest, tokenresponse, userinforequest, userinforesponse, introspectionrequest, introspectionresponse);
                             test.setDatabase(database);
 
                             if(test.hook==hook) {
@@ -422,12 +510,12 @@ module.exports = function(app, checkAuthorisation, database) {
                             }
 
                             introspectionresponse = await test.getIntrospectionResponse();
+                            res.status(test.getStatusCode() || 200);
                             res.set(test.getHeaders());
                         }
                     }
                 }
             
-
                 database.setStep(request.req_id, 'introspectionresponse', introspectionresponse);        
                 database.setLastLog(user, external_code, store_type, testsuite, {
                     details: {
@@ -453,7 +541,7 @@ module.exports = function(app, checkAuthorisation, database) {
 
         // make introspectionresponse
         console.log("Introspection Response", introspectionresponse);
-        res.status(200).json(introspectionresponse);
+        res.json(introspectionresponse);
     });
 
 
