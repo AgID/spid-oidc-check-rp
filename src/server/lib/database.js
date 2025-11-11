@@ -71,7 +71,7 @@ class Database {
                     authresponse    TEXT, \
                     tokenrequest    TEXT, \
                     tokenresponse   TEXT, \
-                    userinforequest TEXR, \
+                    userinforequest TEXT, \
                     userinforesponse TEXT, \
                     id_token        STRING UNIQUE, \
                     access_token    STRING UNIQUE, \
@@ -80,10 +80,23 @@ class Database {
                     state           STRING, \
                     nonce           STRING \
                 ); \
+                CREATE TABLE IF NOT EXISTS grant_token (\
+                    kid             STRING UNIQUE, \
+                    token_timestamp DATETIME DEFAULT (datetime('now')) NOT NULL, \
+                    token           STRING, \
+                    payload         TEXT, \
+                    scope           STRING, \
+                    exp             STRING, \
+                    sub             STRING, \
+                    client_id       STRING, \
+                    iss             STRING, \
+                    aud             STRING \
+                ); \
             ");
 
             this.db.exec(" \
                 DELETE FROM token WHERE req_timestamp <= datetime('now', '-30 minutes'); \
+                DELETE FROM grant_token WHERE token_timestamp <= datetime('now', '-60 minutes'); \
                 DELETE FROM log WHERE timestamp <= datetime('now', '-60 minutes'); \
             ");
 
@@ -684,7 +697,9 @@ class Database {
             'tokenrequest',
             'tokenresponse',
             'userinforequest',
-            'userinforesponse'
+            'userinforesponse',
+            'introspectionrequest',
+            'introspectionresponse'
         ];
 
         if(steps.includes(step)) {
@@ -714,6 +729,46 @@ class Database {
 
         return JSON.parse(result[0][step]);
     }
+
+    saveGrantToken(kid, token, payload, scope=null, exp=null, sub=null, client_id=null, iss=null, aud=null) {
+        let stmt = this.db.prepare(" \
+            INSERT INTO grant_token(kid, token, payload, scope, exp, sub, client_id, iss, aud) \
+            VALUES(:kid, :token, :payload, :scope, :exp, :sub, :client_id, :iss, :aud); \
+        ");
+        stmt.run({
+            'kid': kid,
+            'token': token,
+            'payload': payload,
+            'scope':scope,
+            'exp':exp,
+            'sub':sub,
+            'client_id':client_id,
+            'iss':iss,
+            'aud':aud
+        });
+    }
+
+    checkGrantToken(grant_token) {
+        let check = false;
+
+        let stmt = this.db.prepare(" \
+            SELECT * FROM grant_token \
+            WHERE token=:grant_token; \
+        ");
+
+        let result = stmt.all({
+            'grant_token': grant_token
+        })
+
+        if(result.length==1) {
+            let saved = result[0];
+            saved['payload'] = JSON.parse(saved['payload']);
+            console.log("Grant Token", saved); 
+            if(moment.unix(saved['exp']).isAfter(moment())) check = saved;
+        }
+
+        return check;
+    }    
 }
     
 module.exports = Database; 

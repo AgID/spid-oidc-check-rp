@@ -86,7 +86,7 @@ class Test_3_1_1 extends TestTokenResponse {
                     "oidc:" + id_token_jti,
                     "https://www.spid.gov.it/SpidL2",
                     config_op.issuer,
-                    "sub",
+                    "validator",    // sub must be the same of subject user used for test (user of spid-oidc-check-op login user)
                     this.metadata.configuration.client_id
                 );
                 tokens.push({
@@ -150,7 +150,7 @@ class Test_3_1_1 extends TestTokenResponse {
 
         let kid = crypto.randomUUID();
         let iat = moment();
-        let exp = iat.clone().add(1, 'years')
+        let exp = iat.clone().add(30, 'minutes')
 
         header = {
             typ: (header!=null && header.typ!=null) ? header.typ : "aa-grant+jwt",
@@ -159,7 +159,7 @@ class Test_3_1_1 extends TestTokenResponse {
             kid: (header!=null && header.kid!=null) ? header.kid : kid
         }
 
-        payload = JSON.stringify({
+        payload = {
             iat: (payload!=null && payload.iat!=null) ? payload.iat===false? undefined : payload.iat : iat.unix(),
             exp: (payload!=null && payload.exp!=null) ? payload.exp===false? undefined : payload.exp : exp.unix(),
             nbf: (payload!=null && payload.nbf!=null) ? payload.nbf===false? undefined : payload.nbf : iat.unix(),
@@ -171,13 +171,15 @@ class Test_3_1_1 extends TestTokenResponse {
             sub: (payload!=null && payload.sub!=null) ? payload.sub===false? undefined : payload.sub : sub,
             act: (payload!=null && payload.act!=null) ? payload.act===false? undefined : payload.act : {"sub": actsub},
             userID: (payload!=null && payload.userID!=null) ? payload.userID : sub
-        })
+        };
+
+        let payloadstring = JSON.stringify(payload);
 
         const signedGrantToken = await jose.JWS.createSign({
             format: 'compact',
             alg: header.alg ?? 'RS256',
             fields: {...header}
-        }, prv_key).update(payload).final();
+        }, prv_key).update(payloadstring).final();
 
         console.log("GrantToken JWS (" + aud + ") : ", signedGrantToken);
 
@@ -185,6 +187,18 @@ class Test_3_1_1 extends TestTokenResponse {
             format: 'compact',
             fields: {...header} 
         }, pub_crt).update(signedGrantToken).final();
+
+        this.database.saveGrantToken(
+            kid, 
+            encryptedToken, 
+            payloadstring, 
+            this.authrequest.scope, 
+            payload.exp, 
+            sub, 
+            this.authrequest.client_id, 
+            iss, 
+            this.authrequest.client_id
+        );
 
         return encryptedToken;
     }    
