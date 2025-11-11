@@ -88,7 +88,7 @@ class Database {
                     scope           STRING, \
                     exp             STRING, \
                     sub             STRING, \
-                    client_id       STRING, \
+                    act             STRING, \
                     iss             STRING, \
                     aud             STRING \
                 ); \
@@ -730,10 +730,10 @@ class Database {
         return JSON.parse(result[0][step]);
     }
 
-    saveGrantToken(kid, token, payload, scope=null, exp=null, sub=null, client_id=null, iss=null, aud=null) {
+    saveGrantToken(kid, token, payload, scope=null, exp=null, sub=null, act=null, iss=null, aud=null) {
         let stmt = this.db.prepare(" \
-            INSERT INTO grant_token(kid, token, payload, scope, exp, sub, client_id, iss, aud) \
-            VALUES(:kid, :token, :payload, :scope, :exp, :sub, :client_id, :iss, :aud); \
+            INSERT INTO grant_token(kid, token, payload, scope, exp, sub, act, iss, aud) \
+            VALUES(:kid, :token, :payload, :scope, :exp, :sub, :act, :iss, :aud); \
         ");
         stmt.run({
             'kid': kid,
@@ -742,7 +742,7 @@ class Database {
             'scope':scope,
             'exp':exp,
             'sub':sub,
-            'client_id':client_id,
+            'act':JSON.stringify(act),
             'iss':iss,
             'aud':aud
         });
@@ -763,6 +763,7 @@ class Database {
         if(result.length==1) {
             let saved = result[0];
             saved['payload'] = JSON.parse(saved['payload']);
+            saved['act'] = JSON.parse(saved['act']);
             console.log("Grant Token", saved); 
             if(moment.unix(saved['exp']).isAfter(moment())) check = saved;
         }

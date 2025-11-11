@@ -334,7 +334,7 @@ module.exports = function(app, checkAuthorisation, database) {
                     scope: grant_token['scope'],
                     exp: grant_token['exp'],
                     sub: grant_token['sub'],
-                    client_id: grant_token['client_id'],
+                    act: grant_token['act'],
                     iss: grant_token['iss'],
                     aud: grant_token['aud']
                 };

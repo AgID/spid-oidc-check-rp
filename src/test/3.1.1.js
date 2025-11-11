@@ -195,9 +195,9 @@ class Test_3_1_1 extends TestTokenResponse {
             this.authrequest.scope, 
             payload.exp, 
             sub, 
-            this.authrequest.client_id, 
+            payload.act, 
             iss, 
-            this.authrequest.client_id
+            payload.aud
         );
 
         return encryptedToken;
