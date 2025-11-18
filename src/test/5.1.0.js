@@ -6,7 +6,7 @@ class Test_5_1_0 extends TestGrantTokenIntrospectionResponse {
         super(metadata, authrequest, authresponse, tokenrequest, tokenresponse, userinforequest, userinforesponse, introspectionrequest, introspectionresponse);
         this.num = "5.1.0";
         this.description = "Correct Grant Token Introspection Response (active=true or active=false if token not found)";
-        this.validation = "automatic";
+        this.validation = "self";
     }
 
     async exec() {

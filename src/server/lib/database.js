@@ -799,6 +799,7 @@ class Database {
             saved['act'] = JSON.parse(saved['act']);
             console.log("Grant Token", saved); 
             if(moment.unix(saved['exp']).isAfter(moment())) check = saved;
+            else console.log("WARNING: token is expired on " + moment.unix(saved['exp']).format('DD/MM/YYYY HH:mm:ss'));
         }
 
         return check;

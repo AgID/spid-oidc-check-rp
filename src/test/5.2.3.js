@@ -1,11 +1,11 @@
 const TestIntrospectionResponse = require('../server/lib/test/TestIntrospectionResponse.js');
 
-class Test_5_1_1 extends TestIntrospectionResponse {
+class Test_5_2_3 extends TestIntrospectionResponse {
 
     constructor(metadata, authrequest, authresponse, tokenrequest, tokenresponse, userinforequest, userinforesponse, introspectionrequest, introspectionresponse) {
         super(metadata, authrequest, authresponse, tokenrequest, tokenresponse, userinforequest, userinforesponse, introspectionrequest, introspectionresponse);
-        this.num = "5.1.1";
-        this.description = "Correct Grant Token Introspection Response for active=false";
+        this.num = "5.2.3";
+        this.description = "Introspection Error Response - parameter error is not present";
         this.validation = "self";
     }
 
@@ -15,7 +15,7 @@ class Test_5_1_1 extends TestIntrospectionResponse {
         this.setStatusCode(401);
  
         this.introspectionresponse = {
-            active: false
+            error_description: 'client_id non riconosciuto.' 
         }
 
         return true;
@@ -23,4 +23,4 @@ class Test_5_1_1 extends TestIntrospectionResponse {
  
 }
 
-module.exports = Test_5_1_1
+module.exports = Test_5_2_3
