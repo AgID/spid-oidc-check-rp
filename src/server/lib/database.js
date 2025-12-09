@@ -57,33 +57,49 @@ class Database {
                     PRIMARY KEY (user, type)     \
                 ); \
                 CREATE TABLE IF NOT EXISTS token ( \
-                    req_id          INTEGER PRIMARY KEY AUTOINCREMENT, \
-                    req_timestamp   DATETIME DEFAULT (datetime('now')) NOT NULL, \
-                    user            STRING, \
-                    store_type      STRING, \
-                    testsuite       STRING, \
-                    testcase        STRING, \
-                    client_id       STRING, \
-                    redirect_uri    STRING, \
-                    code            STRING UNIQUE, \
-                    auth_timestamp  DATETIME DEFAULT (datetime('now')) NOT NULL, \
-                    authrequest     TEXT, \
-                    authresponse    TEXT, \
-                    tokenrequest    TEXT, \
-                    tokenresponse   TEXT, \
-                    userinforequest TEXR, \
-                    userinforesponse TEXT, \
-                    id_token        STRING UNIQUE, \
-                    access_token    STRING UNIQUE, \
-                    token_timestamp DATETIME, \
-                    userinfo        STRING, \
-                    state           STRING, \
-                    nonce           STRING \
+                    req_id                  INTEGER PRIMARY KEY AUTOINCREMENT, \
+                    req_timestamp           DATETIME DEFAULT (datetime('now')) NOT NULL, \
+                    user                    STRING, \
+                    store_type              STRING, \
+                    testsuite               STRING, \
+                    testcase                STRING, \
+                    client_id               STRING, \
+                    redirect_uri            STRING, \
+                    code                    STRING UNIQUE, \
+                    auth_timestamp          DATETIME DEFAULT (datetime('now')) NOT NULL, \
+                    authrequest             TEXT, \
+                    authresponse            TEXT, \
+                    tokenrequest            TEXT, \
+                    tokenresponse           TEXT, \
+                    userinforequest         TEXT, \
+                    userinforesponse        TEXT, \
+                    introspectionrequest    TEXT, \
+                    introspectionresponse   TEXT, \
+                    id_token                STRING UNIQUE, \
+                    access_token            STRING UNIQUE, \
+                    token_timestamp         DATETIME, \
+                    userinfo                STRING, \
+                    state                   STRING, \
+                    nonce                   STRING \
+                ); \
+                CREATE TABLE IF NOT EXISTS grant_token (\
+                    kid             STRING UNIQUE, \
+                    req_id          INTEGER, \
+                    token_timestamp DATETIME DEFAULT (datetime('now')) NOT NULL, \
+                    token           STRING, \
+                    payload         TEXT, \
+                    scope           STRING, \
+                    exp             STRING, \
+                    sub             STRING, \
+                    act             STRING, \
+                    iss             STRING, \
+                    aud             STRING \
                 ); \
             ");
 
             this.db.exec(" \
                 DELETE FROM token WHERE req_timestamp <= datetime('now', '-30 minutes'); \
+                DELETE FROM grant_token WHERE token_timestamp <= datetime('now', '-60 minutes'); \
                 DELETE FROM log WHERE timestamp <= datetime('now', '-60 minutes'); \
             ");
 
@@ -424,6 +440,35 @@ class Database {
         return req_id;
     }
 
+    getRequest(req_id) {
+        let stmt = this.db.prepare(" \
+            SELECT * FROM token \
+            WHERE req_id = :req_id;"
+        );
+
+        let result = stmt.all({
+            'req_id': req_id
+        });
+
+        let request = null;
+        if(result.length==1) {
+            request = {
+                req_id: result[0]['req_id'], 
+                user: result[0]['user'],
+                store_type: result[0]['store_type'],
+                testsuite: result[0]['testsuite'],
+                testcase: result[0]['testcase'],
+                client_id: result[0]['client_id'],
+                redirect_uri: result[0]['redirect_uri'],
+                state: result[0]['state'],
+                nonce: result[0]['nonce'],
+                authrequest: JSON.parse(result[0]['authrequest'])
+            };
+        }
+
+        return request;
+    }
+
     getRequestByCode(code) {
         let stmt = this.db.prepare(" \
             SELECT * FROM token \
@@ -684,7 +729,9 @@ class Database {
             'tokenrequest',
             'tokenresponse',
             'userinforequest',
-            'userinforesponse'
+            'userinforesponse',
+            'introspectionrequest',
+            'introspectionresponse'
         ];
 
         if(steps.includes(step)) {
@@ -714,6 +761,49 @@ class Database {
 
         return JSON.parse(result[0][step]);
     }
+
+    saveGrantToken(kid, req_id, token, payload, scope=null, exp=null, sub=null, act=null, iss=null, aud=null) {
+        let stmt = this.db.prepare(" \
+            INSERT INTO grant_token(kid, req_id, token, payload, scope, exp, sub, act, iss, aud) \
+            VALUES(:kid, :req_id, :token, :payload, :scope, :exp, :sub, :act, :iss, :aud); \
+        ");
+        stmt.run({
+            'kid': kid,
+            'req_id': req_id,
+            'token': token,
+            'payload': payload,
+            'scope':scope,
+            'exp':exp,
+            'sub':sub,
+            'act':JSON.stringify(act),
+            'iss':iss,
+            'aud':aud
+        });
+    }
+
+    checkGrantToken(grant_token) {
+        let check = false;
+
+        let stmt = this.db.prepare(" \
+            SELECT * FROM grant_token \
+            WHERE token=:grant_token; \
+        ");
+
+        let result = stmt.all({
+            'grant_token': grant_token
+        })
+
+        if(result.length==1) {
+            let saved = result[0];
+            saved['payload'] = JSON.parse(saved['payload']);
+            saved['act'] = JSON.parse(saved['act']);
+            console.log("Grant Token", saved); 
+            if(moment.unix(saved['exp']).isAfter(moment())) check = saved;
+            else console.log("WARNING: token is expired on " + moment.unix(saved['exp']).format('DD/MM/YYYY HH:mm:ss'));
+        }
+
+        return check;
+    }    
 }
     
 module.exports = Database; 

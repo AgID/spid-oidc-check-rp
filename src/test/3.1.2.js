@@ -10,12 +10,12 @@ const jose = require('../server/node_modules/node-jose');
 const axios = require('../server/node_modules/axios').default;
 const config_op  = require('../config/op.json');
 
-class Test_3_1_1 extends TestTokenResponse {
+class Test_3_1_2 extends TestTokenResponse {
 
     constructor(metadata, authrequest, authresponse, tokenrequest) {
         super(metadata, authrequest, authresponse, tokenrequest);
-        this.num = "3.1.1";
-        this.description = "correct token response for AA containing Grant Token";
+        this.num = "3.1.2";
+        this.description = "correct token response for AA containing expired (revoked) Grant Token";
         this.validation = "automatic";
     }
 
@@ -151,7 +151,7 @@ class Test_3_1_1 extends TestTokenResponse {
 
         let kid = crypto.randomUUID();
         let iat = moment();
-        let exp = iat.clone().add(30, 'minutes')
+        let exp = iat.clone().subtract(1, 'minutes')     // it's expired or revoked
 
         header = {
             typ: (header!=null && header.typ!=null) ? header.typ : "aa-grant+jwt",
@@ -207,4 +207,4 @@ class Test_3_1_1 extends TestTokenResponse {
  
 }
 
-module.exports = Test_3_1_1
+module.exports = Test_3_1_2

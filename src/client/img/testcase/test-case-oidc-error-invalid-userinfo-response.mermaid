@@ -1,0 +1,17 @@
+sequenceDiagram
+    participant User
+    participant RP
+    participant OP
+    User->>RP: OP selection
+    RP-->>+User: 
+    User-->>-OP: authentication request
+    OP-->>User: 
+    User-->>OP: authentication challenge 
+    OP-->>+User: 
+    User-->>-RP: authentication response
+    RP->>OP: token request
+    OP->>RP: token response
+    RP->>OP: refresh token request
+    OP->>RP: refresh token response
+    RP->>OP: userinfo request
+    OP->>RP: userinfo error response
