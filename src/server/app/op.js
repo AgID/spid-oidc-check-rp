@@ -211,6 +211,7 @@ module.exports = function(app, checkAuthorisation, database) {
         { // userinfo-request
             let hook = "userinfo-request";
 
+            database.setStep(request.req_id, 'userinforequest', userinforequest);
             database.setLastLog(user, external_code, store_type, testsuite, {
                 details: {
                     metadata: metadata,
@@ -277,11 +278,13 @@ module.exports = function(app, checkAuthorisation, database) {
                     }
 
                     userinforesponse = await test.getUserinfoResponse();
+                    res.status(test.getStatusCode());
                     res.set(test.getHeaders());
                 }
             }
         }
 
+        database.setStep(request.req_id, 'userinforesponse', userinforesponse);
         database.setLastLog(user, external_code, store_type, testsuite, {
             details: {
                 metadata: metadata,
@@ -298,13 +301,18 @@ module.exports = function(app, checkAuthorisation, database) {
 
         // make userinforesponse
         console.log("Userinfo Response", userinforesponse);
-        res.status(200).json(userinforesponse);
+        res.json(userinforesponse);
     });
 
     // OIDC Introspection Endpoint
     app.all("/introspection", async function(req, res) { 
 
         let external_code = null;
+
+        if(req.method!='POST') return res.status(405).json({
+            error: 'invalid_method',
+            error_description: 'method MUST be POST'
+        });
         
         let introspectionrequest = {
             method: req.method,
@@ -316,9 +324,9 @@ module.exports = function(app, checkAuthorisation, database) {
         console.log("Introspection Request", introspectionrequest);     
 
         let token = introspectionrequest.token;
-        if(!token) res.status(400).json({
+        if(!token) return res.status(400).json({
             error: 'invalid_request',
-            description: 'token missing'
+            error_description: 'token missing'
         });
 
         let introspectionresponse = {
@@ -543,7 +551,6 @@ module.exports = function(app, checkAuthorisation, database) {
         console.log("Introspection Response", introspectionresponse);
         res.json(introspectionresponse);
     });
-
 
 
 
