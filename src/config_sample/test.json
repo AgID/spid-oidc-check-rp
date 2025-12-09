@@ -47,6 +47,19 @@
                     "userinfo-response": []
                 }
             },
+            "test-case-oidc-error-invalid-userinfo-response": {
+                "name": "Test Case OIDC Core Userinfo Error Response - 405 Method Not Allowed",
+                "description": "Make the userinfo error response for 405 Method Not Allowed",
+                "ref": "SPID-QAD-OIDC-RP",
+                "hook": {
+                    "authentication-request": ["2.0.0", "2.0.1"],
+                    "authentication-response": ["2.2.0"],
+                    "token-request": ["3.0.0"],
+                    "token-response": ["3.1.0"], 
+                    "userinfo-request": ["4.0.0"],
+                    "userinfo-response": ["4.2.1"]
+                }
+            },            
             "test-case-oidc-aa-0": {
                 "name": "Test Case Attribute Authority Grant Token Response",
                 "description": "Make the token response containing the grant token",
@@ -57,9 +70,122 @@
                     "token-request": ["3.0.0"],
                     "token-response": ["3.1.1"], 
                     "userinfo-request": ["4.0.0"],
-                    "userinfo-response": ["4.1.0"]
+                    "userinfo-response": ["4.1.0"],
+                    "granttoken-introspection-request": [],
+                    "granttoken-introspection-response": ["5.1.0"]
                 }
-            }            
+            },
+            "test-case-oidc-aa-1": {
+                "name": "Test Case Attribute Authority expired Grant Token Response (active=false)",
+                "description": "Make the token response containing an expired grant token and reply to grant token introspection with active=false",
+                "ref": "SPID-QAD-OIDC-RP, SPID-QAD-OIDC-OP-AA",
+                "hook": {
+                    "authentication-request": ["2.0.0", "2.0.1"],
+                    "authentication-response": ["2.2.0"],
+                    "token-request": ["3.0.0"],
+                    "token-response": ["3.1.2"], 
+                    "userinfo-request": ["4.0.0"],
+                    "userinfo-response": ["4.1.0"],
+                    "granttoken-introspection-request": [],
+                    "granttoken-introspection-response": ["5.1.1"]
+                }
+            },
+            "test-case-oidc-aa-2": {
+                "name": "Test Case Attribute Authority Grant Token Correct Introspection Error Response",
+                "image": "test-case-oidc-aa-error",
+                "description": "Make the introspection error response for invalid_request",
+                "ref": "SPID-QAD-OIDC-RP, SPID-QAD-OIDC-OP-AA",
+                "hook": {
+                    "authentication-request": ["2.0.0", "2.0.1"],
+                    "authentication-response": ["2.2.0"],
+                    "token-request": ["3.0.0"],
+                    "token-response": ["3.1.1"], 
+                    "userinfo-request": ["4.0.0"],
+                    "userinfo-response": ["4.1.0"],
+                    "granttoken-introspection-request": [],
+                    "granttoken-introspection-response": ["5.2.0"]
+                }
+            },
+            "test-case-oidc-aa-3": {
+                "name": "Test Case Attribute Authority Grant Token Wrong Introspection Error Response - Content-Type",
+                "image": "test-case-oidc-aa-error",
+                "description": "Make a wrong introspection error response - Content-Type is not 'application/json'",
+                "ref": "SPID-QAD-OIDC-RP, SPID-QAD-OIDC-OP-AA",
+                "hook": {
+                    "authentication-request": ["2.0.0", "2.0.1"],
+                    "authentication-response": ["2.2.0"],
+                    "token-request": ["3.0.0"],
+                    "token-response": ["3.1.1"], 
+                    "userinfo-request": ["4.0.0"],
+                    "userinfo-response": ["4.1.0"],
+                    "granttoken-introspection-request": [],
+                    "granttoken-introspection-response": ["5.2.1"]
+                }
+            },
+            "test-case-oidc-aa-4": {
+                "name": "Test Case Attribute Authority Grant Token Wrong Introspection Error Response - Status Code",
+                "image": "test-case-oidc-aa-error",
+                "description": "Make a wrong introspection error response - HTTP Status Code is not one of [400, 401, 405, 500, 503]",
+                "ref": "SPID-QAD-OIDC-RP, SPID-QAD-OIDC-OP-AA",
+                "hook": {
+                    "authentication-request": ["2.0.0", "2.0.1"],
+                    "authentication-response": ["2.2.0"],
+                    "token-request": ["3.0.0"],
+                    "token-response": ["3.1.1"], 
+                    "userinfo-request": ["4.0.0"],
+                    "userinfo-response": ["4.1.0"],
+                    "granttoken-introspection-request": [],
+                    "granttoken-introspection-response": ["5.2.2"] 
+                }
+            },
+            "test-case-oidc-aa-5": {
+                "name": "Test Case Attribute Authority Grant Token Wrong Introspection Error Response - Parameter error not present",
+                "image": "test-case-oidc-aa-error",
+                "description": "Make a wrong introspection error response - parameter error is not present",
+                "ref": "SPID-QAD-OIDC-RP, SPID-QAD-OIDC-OP-AA",
+                "hook": {
+                    "authentication-request": ["2.0.0", "2.0.1"],
+                    "authentication-response": ["2.2.0"],
+                    "token-request": ["3.0.0"],
+                    "token-response": ["3.1.1"], 
+                    "userinfo-request": ["4.0.0"],
+                    "userinfo-response": ["4.1.0"],
+                    "granttoken-introspection-request": [],
+                    "granttoken-introspection-response": ["5.2.3"] 
+                }
+            },
+            "test-case-oidc-aa-6": {
+                "name": "Test Case Attribute Authority Grant Token Wrong Introspection Error Response - Parameter error_description not present",
+                "image": "test-case-oidc-aa-error",
+                "description": "Make a wrong introspection error response - parameter error_description is not present",
+                "ref": "SPID-QAD-OIDC-RP, SPID-QAD-OIDC-OP-AA",
+                "hook": {
+                    "authentication-request": ["2.0.0", "2.0.1"],
+                    "authentication-response": ["2.2.0"],
+                    "token-request": ["3.0.0"],
+                    "token-response": ["3.1.1"], 
+                    "userinfo-request": ["4.0.0"],
+                    "userinfo-response": ["4.1.0"],
+                    "granttoken-introspection-request": [],
+                    "granttoken-introspection-response": ["5.2.4"] 
+                }
+            },
+            "test-case-oidc-aa-7": {
+                "name": "Test Case Attribute Authority Grant Token Wrong Introspection Error Response - Value of error not valid",
+                "image": "test-case-oidc-aa-error",
+                "description": "Make a wrong introspection error response - the value of error is different from ['invalid_client', 'invalid_request', 'server_error', 'temporarily_unavailable']",
+                "ref": "SPID-QAD-OIDC-RP, SPID-QAD-OIDC-OP-AA",
+                "hook": {
+                    "authentication-request": ["2.0.0", "2.0.1"],
+                    "authentication-response": ["2.2.0"],
+                    "token-request": ["3.0.0"],
+                    "token-response": ["3.1.1"], 
+                    "userinfo-request": ["4.0.0"],
+                    "userinfo-response": ["4.1.0"],
+                    "granttoken-introspection-request": [],
+                    "granttoken-introspection-response": ["5.2.5"] 
+                }
+            }
         }
     }
 }

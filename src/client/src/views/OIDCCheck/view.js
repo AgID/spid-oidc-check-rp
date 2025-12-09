@@ -30,7 +30,8 @@ function view(me) {
                                 <h4>Description</h4>
                                 <p className="test-description mb-5">{me.state.selected.value.description}</p>
                                 <h4>Sequence Diagram</h4>
-                                <img className="testcase-diagram mb-5" src={"../img/testcase/" + me.state.selected.id + ".svg"} /> 
+                                <img className="testcase-diagram mb-5" src={"../img/testcase/" + (me.state.selected.value.image? me.state.selected.value.image : me.state.selected.id) + ".svg"} /> 
+
 
                                 <h4>Test List</h4>
                                 {me.state.selected &&
