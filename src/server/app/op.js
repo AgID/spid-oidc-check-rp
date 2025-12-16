@@ -251,6 +251,7 @@ module.exports = function(app, checkAuthorisation, database) {
         }
 
         let userinforesponse = {};
+        let userinforesponse_statuscode = 200;
 
         { // userinfo-response
             let hook = "userinfo-response";
@@ -278,7 +279,7 @@ module.exports = function(app, checkAuthorisation, database) {
                     }
 
                     userinforesponse = await test.getUserinfoResponse();
-                    res.status(test.getStatusCode());
+                    userinforesponse_statuscode = test.getStatusCode() ?? userinforesponse_statuscode;
                     res.set(test.getHeaders());
                 }
             }
@@ -301,7 +302,7 @@ module.exports = function(app, checkAuthorisation, database) {
 
         // make userinforesponse
         console.log("Userinfo Response", userinforesponse);
-        res.json(userinforesponse);
+        res.status(userinforesponse_statuscode).json(userinforesponse);
     });
 
     // OIDC Introspection Endpoint
