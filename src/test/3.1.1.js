@@ -144,10 +144,13 @@ class Test_3_1_1 extends TestTokenResponse {
         // grab public cert of aa (aud) for encryption
         let aa_config = (await axios.get(aud + '/.well-known/openid-federation')).data;
         let aa_config_payload = jwt_decode(aa_config);
-        let jwk = JSON.stringify(aa_config_payload.jwks.keys.filter(k=> { return k.use=='enc' })[0]); 
+        let jwk = aa_config_payload.jwks.keys.filter(k=> { return k.use=='enc' })[0]; 
+
+        let x5c = "-----BEGIN CERTIFICATE-----\n" + jwk.x5c[0] + "\n-----END CERTIFICATE-----\n";
 
         // check if grant token is signed by openid provider that issued it
-        const pub_crt = await keystore.add(jwk, 'json');
+        const pub_crt = await keystore.add(x5c, 'pem');
+        let pub_key = await jose.JWK.asKey(x5c, 'pem', { alg: 'RSA-OAEP-256' });
 
         let kid = crypto.randomUUID();
         let iat = moment();
@@ -187,7 +190,7 @@ class Test_3_1_1 extends TestTokenResponse {
         const encryptedToken = await jose.JWE.createEncrypt({ 
             format: 'compact',
             fields: {...header} 
-        }, pub_crt).update(signedGrantToken).final();
+        }, pub_key).update(signedGrantToken).final();
 
         this.database.saveGrantToken(
             kid, 
